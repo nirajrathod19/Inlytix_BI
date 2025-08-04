@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block title %}Welcome - Inlytix BI{% endblock %}
+{% block content %}
+
+<!-- New Welcome Section -->
+<div class="welcome-section">
+    <h1>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Inlytix BI Logo" class="welcome-logo">
+        Inlytix BI
+    </h1>
+    <p>
+        Your all-in-one solution for data analysis. Upload, clean, model, and visualize your data to uncover insights and make data-driven decisions in no time.
+    </p>
+    <a class="btn btn-outline-dark" href="{{ url_for('register') }}" role="button">Start Analyzing</a>
+</div>
+
+<!-- New Feature Cards Section -->
+<div class="feature-card-wrapper">
+    <!-- Card 1: What's New -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <i class="fas fa-newspaper"></i>
+        </div>
+        <h5>What's New</h5>
+        <p>Introducing our new PDF Report Generator! Compile all your charts into a single, professional document.</p>
+    </div>
+
+    <!-- Card 2: Learn & Explore (WITH BUTTON ADDED BACK) -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h5>Learn & Explore</h5>
+        <p>Check out our new tutorial on creating dynamic scatter plots and forecasting future trends from your data.</p>
+        <a class="btn btn-outline-dark mt-3" href="#" role="button">Watch Tutorial</a>
+    </div>
+
+    <!-- Card 3: Key Features -->
+    <div class="feature-card">
+        <div class="feature-icon">
+            <i class="fas fa-cogs"></i>
+        </div>
+        <h5>Key Features</h5>
+        <p>Upload, model, and prepare your data with our intuitive tools before creating interactive visualizations.</p>
+    </div>
+</div>
+
+{% endblock %}

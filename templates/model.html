@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block title %}Data Modeling - Inlytix BI{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>Data Modeling</h2>
+    <p>Join your uploaded tables to create a unified dataset.</p>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Uploaded Tables</h5>
+            <ul class="list-group list-group-flush mb-3">
+                {% for table_name in tables %}
+                <li class="list-group-item">{{ table_name }}</li>
+                {% endfor %}
+            </ul>
+
+            <h5 class="card-title">Define Join</h5>
+            <form action="{{ url_for('merge_data') }}" method="POST">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Left Table</label>
+                        <select id="left-table" name="left_table" class="form-select" required>
+                            <option value="">Select Table...</option>
+                            {% for table_name in tables %}
+                            <option value="{{ table_name }}">{{ table_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Join On</label>
+                        <select id="left-key" name="left_key" class="form-select" required></select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Right Table</label>
+                        <select id="right-table" name="right_table" class="form-select" required>
+                             <option value="">Select Table...</option>
+                            {% for table_name in tables %}
+                            <option value="{{ table_name }}">{{ table_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Join On</label>
+                        <select id="right-key" name="right_key" class="form-select" required></select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label>Join Type</label>
+                        <select name="join_type" class="form-select">
+                            <option value="inner">Inner</option>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                            <option value="outer">Outer</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-primary">Merge Data & Proceed to Prepare</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // This script dynamically updates the 'Join On' dropdowns
+    const tableColumns = {{ table_columns|tojson }};
+
+    function updateKeyDropdown(tableSelectId, keySelectId) {
+        const selectedTable = document.getElementById(tableSelectId).value;
+        const keyDropdown = document.getElementById(keySelectId);
+        keyDropdown.innerHTML = ''; // Clear existing options
+
+        if (selectedTable && tableColumns[selectedTable]) {
+            tableColumns[selectedTable].forEach(column => {
+                const option = document.createElement('option');
+                option.value = column;
+                option.textContent = column;
+                keyDropdown.appendChild(option);
+            });
+        }
+    }
+
+    document.getElementById('left-table').addEventListener('change', () => updateKeyDropdown('left-table', 'left-key'));
+    document.getElementById('right-table').addEventListener('change', () => updateKeyDropdown('right-table', 'right-key'));
+</script>
+{% endblock %}

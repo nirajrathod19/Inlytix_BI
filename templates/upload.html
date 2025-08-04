@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}Upload Data{% endblock %}
+{% block content %}
+<h2>Upload Your Data File</h2>
+<p>Supports .csv, .xls, and .xlsx files.</p>
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="file" class="form-label">Select file(s)</label>
+                <input type="file" name="files" class="form-control" multiple required>
+            </div>
+            <button type="submit" class="btn btn-primary">Upload and Continue</button>
+        </form>
+    </div>
+</div>
+
+{% if summary %}
+<div class="card">
+    <div class="card-header">
+        Data Summary
+    </div>
+    <div class="card-body">
+        <p><strong>Rows:</strong> {{ summary.rows }}</p>
+        <p><strong>Columns:</strong> {{ summary.columns }}</p>
+        <p><strong>Column Names:</strong> {{ summary.column_names|join(', ') }}</p>
+        <h5 class="mt-4">Sample Data (First 5 Rows)</h5>
+        {{ sample_data|safe }}
+        <div class="text-center mt-4">
+            <a href="{{ url_for('chart_builder') }}" class="btn btn-success btn-lg">Proceed to Chart Builder</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

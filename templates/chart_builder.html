@@ -1,0 +1,145 @@
+{% extends "layout.html" %}
+{% block title %}Chart Builder{% endblock %}
+{% block content %}
+
+<select id="chartType" class="form-select">
+    <option value="bar">Bar Chart</option>
+    <option value="line">Line Chart</option>
+    <option value="pie">Pie (Donut) Chart</option>
+    <option value="doughnut">Doughnut Chart</option>
+    <option value="scatter">Scatter Plot</option> </select>
+
+<div id="dashboard-content"> 
+<h2>Chart Builder</h2>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Chart Controls</h5>
+                    <div class="mb-3">
+                        <label for="chartType" class="form-label">Chart Type</label>
+                        <select id="chartType" class="form-select">
+                            <option value="bar">Bar Chart</option>
+                            <option value="line">Line Chart</option>
+                            <option value="pie">Pie (Donut) Chart</option>
+                            <option value="doughnut">Doughnut Chart</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="xAxis" class="form-label">X-Axis (Category)</label>
+                        <select id="xAxis" class="form-select">
+                            {% for col in columns %}
+                            <option value="{{ col }}">{{ col }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="yAxis" class="form-label">Y-Axis (Value)</label>
+                        <select id="yAxis" class="form-select">
+                            {% for col in columns %}
+                            <option value="{{ col }}">{{ col }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <hr>
+                    <div class="d-grid">
+                        <button id="saveProjectBtn" class="btn btn-secondary">Save Project</button>
+                    </div>
+                    <div class="d-grid mt-2">
+                        <button id="createChartBtn" class="btn btn-primary">Generate Chart</button>
+                    </div>
+                    <hr>
+                    <button id="exportPdfBtn" class="btn btn-danger w-100">
+                        <span id="pdfSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Export PDF Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+    <div class="card">
+        <div class="card-header">
+            Primary Chart
+        </div>
+        <div class="card-body" id="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            Filtered Details
+        </div>
+        <div class="card-body" id="chart-container-2">
+            <h5 id="chart2-title" class="text-center text-muted">Click on the primary chart to see details here.</h5>
+            <canvas id="myChart2"></canvas>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body bg-light">
+            <h6 class="card-title text-muted">Filtered Details Chart Controls</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label-sm">Breakdown By (X-Axis)</label>
+                    <select id="secondaryXAxis" class="form-select form-select-sm">
+                        {% for col in categorical_cols %}
+                            <option value="{{ col }}">{{ col }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-sm">Chart Type</label>
+                    <select id="secondaryChartType" class="form-select form-select-sm">
+                        <option value="bar">Bar Chart</option>
+                        <option value="pie">Pie Chart</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Line Chart Forecasting</h5>
+            <div class="input-group">
+                <input type="number" id="forecastPeriods" class="form-control" placeholder="# of periods" value="5" min="1">
+                <button id="forecastBtn" class="btn btn-outline-primary">Forecast</button>
+            </div>
+            <small class="text-muted">Only applies to the primary Line Chart.</small>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            Data Story
+            <button id="addToStoryBtn" class="btn btn-sm btn-outline-success" title="Add current view to story">+</button>
+        </div>
+        <div class="card-body">
+            <ul id="storyList" class="list-group list-group-flush">
+                <!-- Story points will be loaded here by JavaScript -->
+                {% for point in story_points %}
+                    <li class="list-group-item list-group-item-action" style="cursor: pointer;" onclick="loadStoryPoint({{ point.id }})">
+                        {{ point.title }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            Automated Insights
+        </div>
+        <div class="card-body">
+            <table class="table" id="insightsTable">
+                </table>
+        </div>
+    </div>
+</div>
+<script>
+    const categoricalColumns = {{ categorical_cols|tojson }};
+    const numericColumns = {{ numeric_cols|tojson }};
+</script>
+{% endblock %}

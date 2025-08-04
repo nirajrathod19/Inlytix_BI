@@ -1,0 +1,229 @@
+/* General Body Styling */
+body {
+    background-color: #f8f9fa; /* Light grey background */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Navbar Styling */
+.navbar-dark {
+    background-color: #b8bbc0 !important; /* A deep, professional blue/slate color */
+}
+
+.navbar-brand {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* Navigation links color */
+.nav-link {
+    color: #000000; /* Blue color */
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ffffff; /* Darker on hover */
+    text-decoration: underline;
+}
+
+/* Card Styling for a modern look */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 16px connectedness 20px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+}
+
+.card-header {
+    font-weight: bold;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: #3498db; /* A vibrant blue */
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    border: none;
+}
+.btn-secondary:hover {
+    background-color: #7f8c8d;
+}
+
+/* Form Styling */
+.form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Specific page adjustments */
+#reportChartsContainer .card {
+    background-color: #fdfdfd;
+}
+
+.card-body > canvas {
+    max-height: 450px; /* Adjust this pixel value as needed */
+}
+
+.table-responsive table {
+    width: 100%;
+}
+
+.table-responsive th, .table-responsive td {
+    text-align: left;
+    padding: 8px;
+}
+
+/* --- Custom Trash Can Animation (Color Change) --- */
+
+/* Style the delete button itself */
+.btn-outline-danger {
+    /* Smooth transition for background and border color changes */
+    transition: all 0.2s ease-in-out;
+}
+
+/* Style the trash can icon by default */
+.btn-outline-danger .fa-trash {
+    color: #212529; /* A standard dark/black color */
+    /* Smooth transition for the color change */
+    transition: color 0.2s ease-in-out;
+}
+
+/* On hover, change the button's background and the icon's color */
+.btn-outline-danger:hover {
+    background-color: #dc3545; /* Bootstrap's danger red */
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover .fa-trash {
+    color: white; /* Change icon to white on hover */
+}
+
+/* --- Grayscale Landing Page Theme --- */
+
+/* Main container for the new welcome section */
+.welcome-section {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.welcome-section h1 {
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.welcome-section .icon {
+    font-size: 3rem;
+    color: #555; /* A slightly lighter icon color */
+}
+
+.welcome-section p {
+    font-size: 1.1rem;
+    color: #666;
+    max-width: 600px;
+    margin: 15px auto 30px auto;
+}
+
+/* Style for the main call-to-action button */
+.btn-outline-dark {
+    border-color: #ccc;
+    color: #555;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-dark:hover {
+    background-color: #333;
+    color: white;
+    border-color: #333;
+}
+
+/* New styles for the three feature cards */
+.feature-card-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    padding: 40px 0;
+}
+
+.feature-card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.feature-card .feature-icon {
+    font-size: 2.5rem;
+    color: #444;
+    margin-bottom: 20px;
+}
+
+.feature-card h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.feature-card p {
+    color: #777;
+    font-size: 0.95rem;
+}
+
+/* Add this to the end of your style.css file */
+.welcome-logo {
+    width: 60px; /* Adjust size as needed */
+    height: 60px; /* Adjust size as needed */
+    margin-right: 0px;
+    vertical-align: middle; /* Aligns the image nicely with the text */
+}
+
+/* --- Authentication Form Styles --- */
+.auth-card {
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+.auth-card .form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Make the button more rounded to match the reference */
+.auth-card .btn {
+    border-radius: 25px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-weight: 500;
+}
