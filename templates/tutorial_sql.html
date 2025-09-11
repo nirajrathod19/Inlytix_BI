@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>Connecting to a SQL Database</h2>
+        </div>
+        <div class="card-body">
+            <p>Connect directly to your SQL databases to analyze data in real-time.</p>
+            
+            <h4>Step 1: Go to the Connect Page</h4>
+            <p>From the dashboard, click on the "Connect Data Source" quick action.</p>
+            
+            <h4>Step 2: Enter Credentials</h4>
+            <p>Fill in your database credentials, including the host, database name, username, and password. Our connections are secure and encrypted.</p>
+
+            <h4>Step 3: Write Your Query</h4>
+            <p>Write the SQL query you want to run to fetch the data for analysis. You can also use our AI-powered "Generate SQL" feature to help you write queries using natural language.</p>
+
+            <h4>Step 4: Fetch Data</h4>
+            <p>Click "Fetch Data". The results of your query will be loaded into the application, and you'll be taken to the Chart Builder to start your analysis.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

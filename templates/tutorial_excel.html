@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>How to Import from Excel</h2>
+        </div>
+        <div class="card-body">
+            <p>Importing data from Excel is a straightforward process in Etlytix BI.</p>
+            
+            <h4>Step 1: Prepare Your Excel File</h4>
+            <p>Ensure your Excel file (.xlsx or .xls) has a clean, tabular format. The first row should contain the headers for your columns.</p>
+            
+            <h4>Step 2: Use the Upload Page</h4>
+            <p>Navigate to the "Upload" page from the dashboard's Quick Actions. Click the "Choose File" button and select your Excel file.</p>
+
+            <h4>Step 3: Begin Analysis</h4>
+            <p>Once uploaded, the system will automatically parse your file, and you will be taken to the "Prepare Data" screen to begin your analysis.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

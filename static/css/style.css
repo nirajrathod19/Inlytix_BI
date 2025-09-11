@@ -2,40 +2,72 @@
 body {
     background-color: #f8f9fa; /* Light grey background */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #212529; /* Default dark text color */
+    margin: 0;
+    line-height: 1.6;
+}
+
+main {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 20px auto;
 }
 
 /* Navbar Styling */
-.navbar-dark {
-    background-color: #b8bbc0 !important; /* A deep, professional blue/slate color */
+header {
+    background-color: #ffffff;
+    padding: 10px 40px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-bottom: 1px solid #e0e0e0;
 }
 
-.navbar-brand {
-    color: #ffffff;
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav .logo a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+}
+
+nav .logo img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+nav .logo span {
+    font-size: 1.5em;
     font-weight: bold;
 }
 
 /* Navigation links color */
 .nav-link {
-    color: #000000; /* Blue color */
+    color: #ffffff;
     font-weight: 500;
     transition: color 0.3s ease;
+    margin-left: 20px;
 }
 
 .nav-link:hover {
-    color: #ffffff; /* Darker on hover */
-    text-decoration: underline;
+    color: #c5db34;
+    text-decoration: none;
 }
 
 /* Card Styling for a modern look */
 .card {
-    border: none;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     transition: all 0.3s ease-in-out;
+    background-color: #ffffff;
 }
 
 .card:hover {
-    box-shadow: 0 16px connectedness 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     transform: translateY(-5px);
 }
 
@@ -46,10 +78,20 @@ body {
 }
 
 /* Button Styling */
+.btn {
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
 .btn-primary {
-    background-color: #3498db; /* A vibrant blue */
+    background-color: #3498db;
     border: none;
-    transition: background-color 0.2s;
+    color: white;
 }
 
 .btn-primary:hover {
@@ -59,9 +101,27 @@ body {
 .btn-secondary {
     background-color: #95a5a6;
     border: none;
+    color: white;
 }
 .btn-secondary:hover {
     background-color: #7f8c8d;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    border: none;
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 1.2em;
+    cursor: pointer;
 }
 
 /* Form Styling */
@@ -70,55 +130,456 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
 }
 
-/* Specific page adjustments */
-#reportChartsContainer .card {
-    background-color: #fdfdfd;
+/* Alerts and Messages */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    color: white;
+}
+.alert-success { background-color: #27ae60; }
+.alert-danger { background-color: #c0392b; }
+.alert-info { background-color: #2980b9; }
+
+/* --- NEW DASHBOARD STYLES (Light Theme) --- */
+.dashboard-container {
+    padding: 20px;
 }
 
-.card-body > canvas {
-    max-height: 450px; /* Adjust this pixel value as needed */
+.dashboard-header {
+    margin-bottom: 40px;
+    text-align: center;
 }
 
-.table-responsive table {
+.dashboard-header h1 {
+    color: #333;
+    font-size: 2.5em;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.dashboard-header p {
+    font-size: 1.2em;
+    color: #666;
+}
+
+.dashboard-section {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.dashboard-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 10px;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+/* Quick Actions */
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.action-card {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    border-color: #3498db;
+}
+
+.action-card i {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    display: block;
+    color: #3498db;
+}
+
+.action-card span {
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+/* Main Dashboard Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+}
+
+/* Saved Projects */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.view-options {
+    color: #666;
+}
+
+.view-options select {
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.project-card {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.project-card-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+}
+
+.project-icon {
+    font-size: 1.5em;
+    margin-right: 15px;
+    color: #3498db;
+}
+
+.project-card-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.project-card-body {
+    padding: 0 15px;
+    flex-grow: 1;
+}
+
+.timestamp {
+    font-size: 0.8em;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.project-tags .tag {
+    background-color: #e9ecef;
+    color: #555;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    margin-right: 5px;
+}
+
+.project-card-footer {
+    padding: 15px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    gap: 10px;
+}
+
+/* Sidebar Column Cards */
+.snapshot-card {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #e9ecef;
+}
+
+.snapshot-card i {
+    font-size: 1.8em;
+    color: #3498db;
+    margin-right: 20px;
+    width: 40px;
+    text-align: center;
+}
+
+.snapshot-info h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.snapshot-info p {
+    margin: 0;
+    color: #666;
+}
+
+.kpi-up { color: #27ae60; font-weight: bold; }
+.kpi-down { color: #c0392b; font-weight: bold; }
+
+.tutorial-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tutorial-list li a {
+    display: block;
+    color: #555;
+    text-decoration: none;
+    padding: 10px 5px;
+    border-bottom: 1px solid #e9ecef;
+    transition: color 0.3s;
+}
+
+.tutorial-list li a:hover {
+    color: #3498db;
+}
+
+.tutorial-list i {
+    float: right;
+    transition: transform 0.3s;
+}
+.tutorial-list li a:hover i {
+    transform: translateX(5px);
+}
+
+.account-info p {
+    margin: 0 0 10px 0;
+}
+
+.storage-bar {
     width: 100%;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    height: 10px;
+    overflow: hidden;
+    margin-top: 5px;
 }
 
-.table-responsive th, .table-responsive td {
-    text-align: left;
-    padding: 8px;
+.storage-fill {
+    height: 100%;
+    background-color: #3498db;
+    border-radius: 5px;
 }
 
-/* --- Custom Trash Can Animation (Color Change) --- */
-
-/* Style the delete button itself */
-.btn-outline-danger {
-    /* Smooth transition for background and border color changes */
-    transition: all 0.2s ease-in-out;
+#sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
 }
 
-/* Style the trash can icon by default */
-.btn-outline-danger .fa-trash {
-    color: #212529; /* A standard dark/black color */
-    /* Smooth transition for the color change */
-    transition: color 0.2s ease-in-out;
+#global-project-sidebar {
+    position: fixed;
+    top: 0;
+    right: -350px; /* Start off-screen */
+    width: 350px;
+    height: 100%;
+    background-color: #ffffff;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    transition: right 0.4s ease-in-out;
 }
 
-/* On hover, change the button's background and the icon's color */
-.btn-outline-danger:hover {
-    background-color: #dc3545; /* Bootstrap's danger red */
-    border-color: #dc3545;
+/* Active states for sidebar */
+#global-project-sidebar.active {
+    right: 0;
+}
+#sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }
 
-.btn-outline-danger:hover .fa-trash {
-    color: white; /* Change icon to white on hover */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
 }
 
-/* --- Grayscale Landing Page Theme --- */
+.sidebar-header h3 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+}
 
-/* Main container for the new welcome section */
+#sidebar-close-btn {
+    font-size: 1.5em;
+    color: #777;
+}
+#sidebar-close-btn:hover {
+    color: #333;
+}
+
+#sidebar-project-list {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+#sidebar-project-list a {
+    display: block;
+    padding: 12px 15px;
+    color: #555;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+#sidebar-project-list a:hover {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+/* --- OTHER STYLES FROM YOUR ORIGINAL FILE --- */
+
+/* Welcome Section */
 .welcome-section {
     text-align: center;
     padding: 60px 20px;
+}
+.welcome-section h1 {
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: #333;
+}
+.welcome-section p {
+    font-size: 1.1rem;
+    color: #666;
+    max-width: 600px;
+    margin: 15px auto 30px auto;
+}
+.welcome-logo {
+    width: 60px;
+    height: 60px;
+    margin-right: 0px;
+    vertical-align: middle;
+}
+
+/* Auth Forms */
+.auth-card {
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+.auth-card .form-label {
+    font-weight: 500;
+    color: #495057;
+}
+.auth-card .btn {
+    border-radius: 25px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 10px 20px;
+    }
+    nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    nav .nav-links {
+        margin-top: 15px;
+        margin-left: -20px; /* Align with logo */
+    }
+    .quick-actions-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Back Button Styling */
+.btn-back {
+    position: absolute;
+    top: 60px;
+    left: 15px;
+    background-color: #3498db; /* Theme's primary blue */
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%; /* Makes it a circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.btn-back:hover {
+    background-color: #2980b9; /* Darker blue on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Ensure the main container is a positioning context for the button */
+main {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 20px auto;
+    position: relative; /* This is important! */
+}
+
+/* Main Welcome Section on Landing Page */
+.welcome-section {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.welcome-logo {
+    width: 80px; /* Adjust size as needed */
+    height: 80px;
+    margin-bottom: 20px;
 }
 
 .welcome-section h1 {
@@ -127,103 +588,72 @@ body {
     color: #333;
 }
 
-.welcome-section .icon {
-    font-size: 3rem;
-    color: #555; /* A slightly lighter icon color */
-}
-
-.welcome-section p {
-    font-size: 1.1rem;
-    color: #666;
-    max-width: 600px;
+.welcome-section .lead {
+    max-width: 650px;
     margin: 15px auto 30px auto;
 }
 
-/* Style for the main call-to-action button */
-.btn-outline-dark {
-    border-color: #ccc;
-    color: #555;
-    padding: 10px 25px;
-    border-radius: 20px;
+/* MODIFIED: Styles for the Start Analyzing button */
+.welcome-section .btn-primary {
+    padding: 12px 30px;
+    font-size: 1.1rem;
     font-weight: 500;
+    background-color: transparent;
+    border: 2px solid #333; /* A solid dark border */
+    color: #333; /* Dark text color */
+    border-radius: 25px; /* Rounded corners */
     transition: all 0.3s ease;
 }
 
-.btn-outline-dark:hover {
-    background-color: #333;
-    color: white;
-    border-color: #333;
+.welcome-section .btn-primary:hover {
+    background-color: #333; /* Dark background on hover */
+    color: white; /* White text on hover */
+    border-color: #333; /* Ensure border color matches */
 }
 
-/* New styles for the three feature cards */
-.feature-card-wrapper {
+
+/* Container for the three feature cards */
+.feature-container {
     display: flex;
     justify-content: center;
     gap: 30px;
     flex-wrap: wrap;
     padding: 40px 0;
+    margin-bottom: 50px;
 }
 
+/* Individual Feature Card Styling */
 .feature-card {
     background-color: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
     padding: 30px;
     text-align: center;
-    width: 300px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    width: 320px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
 }
 
 .feature-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
 .feature-card .feature-icon {
     font-size: 2.5rem;
-    color: #444;
+    color: #3498db; /* Theme blue for icons */
     margin-bottom: 20px;
 }
 
 .feature-card h5 {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 600;
     color: #333;
     margin-bottom: 15px;
 }
 
 .feature-card p {
-    color: #777;
+    color: #666;
     font-size: 0.95rem;
-}
-
-/* Add this to the end of your style.css file */
-.welcome-logo {
-    width: 60px; /* Adjust size as needed */
-    height: 60px; /* Adjust size as needed */
-    margin-right: 0px;
-    vertical-align: middle; /* Aligns the image nicely with the text */
-}
-
-/* --- Authentication Form Styles --- */
-.auth-card {
-    background-color: white;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    padding: 40px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-}
-
-.auth-card .form-label {
-    font-weight: 500;
-    color: #495057;
-}
-
-/* Make the button more rounded to match the reference */
-.auth-card .btn {
-    border-radius: 25px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    font-weight: 500;
+    line-height: 1.7;
 }

@@ -1,3 +1,5 @@
+# requirements.txt
+
 Flask
 Flask-SQLAlchemy
 Flask-Login
@@ -6,3 +8,5 @@ pandas
 openpyxl
 fpdf2
 email-validator
+psycopg2-binary
+plotly

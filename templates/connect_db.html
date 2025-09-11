@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block title %}Connect to Database - Etlytix BI{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="auth-card">
+                <h2 class="text-center mb-4">Connect to Your Database</h2>
+                <form id="db-connection-form">
+                    <!-- Connection Details -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Host</label>
+                            <input type="text" id="db_host" class="form-control" value="localhost">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Database Name</label>
+                            <input type="text" id="db_name" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" id="db_user" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" id="db_pass" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- AI-Powered Query Section -->
+                    <hr class="my-4">
+                    <h5 class="text-center mb-3">AI-Powered Query Generator</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Ask a question about your data in plain English:</label>
+                        <textarea id="natural_language_query" class="form-control" rows="2" placeholder="e.g., 'Show me the total revenue for each product'"></textarea>
+                    </div>
+                    <div class="text-center mb-3">
+                        <button type="button" id="generate-sql-btn" class="btn btn-info">
+                            <span id="ai-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Generate SQL Query
+                        </button>
+                    </div>
+
+                    <!-- SQL Query Text Area -->
+                    <div class="mb-3">
+                        <label class="form-label">Generated SQL Query (you can edit this)</label>
+                        <textarea id="sql_query" class="form-control" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary">Fetch Data & Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

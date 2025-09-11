@@ -8,21 +8,45 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
 from fpdf import FPDF
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
+from flask import send_file
 import io
+import time
+import random
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import re
 
+# This is a placeholder for AI function.
+def generate_sql_from_text(user_query):
+    """
+    Uses AI to convert a natural language query into SQL.
+    This is a simplified example.
+    """
+    # A real implementation would involve sending the user_query and table schemas
+    # to a model like Gemini.
+    if "total revenue" in user_query and "each product" in user_query:
+        return "SELECT product_name, SUM(revenue) AS total_revenue FROM sales GROUP BY product_name;"
+    elif "count of customers" in user_query and "each city" in user_query:
+        return "SELECT city, COUNT(customer_id) AS customer_count FROM customers GROUP BY city;"
+    else:
+        return "-- AI could not generate query. Please write it manually."
+
 # --- App Configuration ---
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'a_very_secret_key_that_is_hard_to_guess'
+# Load secret key from environment variable for better security
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_very_secret_key_that_is_hard_to_guess')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
-# Use an ABSOLUTE path for the database to avoid pathing issues
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'instance', 'users.db')
+# Use Flask's instance folder for the database for reliability
+instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+if not os.path.exists(instance_path):
+    os.makedirs(instance_path)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "users.db")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -36,13 +60,20 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
-    projects = db.relationship('Project', backref='author', lazy=True)
+    projects = db.relationship('Project', backref='user', lazy=True)
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    # This will store the prepared DataFrame as a large text block (JSON)
     project_data = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    last_modified = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class UserActivity(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    action = db.Column(db.String(100), nullable=False) # e.g., 'login', 'load_project'
+    project_name = db.Column(db.String(100), nullable=True) # Name of project, if applicable
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 class StoryPoint(db.Model):
@@ -56,6 +87,16 @@ class StoryPoint(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+def log_activity(action, project_name=None):
+    if current_user.is_authenticated:
+        activity = UserActivity(
+            action=action,
+            project_name=project_name,
+            user_id=current_user.id
+        )
+        db.session.add(activity)
+        db.session.commit()
 
 # --- Forms ---
 class RegistrationForm(FlaskForm):
@@ -80,6 +121,141 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
+@app.route('/connect')
+@login_required
+def connect_db():
+    return render_template('connect_db.html')
+
+@app.route('/export/pdf', methods=['POST'])
+@login_required
+def export_pdf():
+    # Get data from the client
+    data = request.get_json()
+    chart_config = data.get('chart_config')
+    insights_text = data.get('insights')
+    title = data.get('title', 'My Report')
+
+    # Get the dataframe from the session
+    df_json = session.get('dataframe')
+    if not df_json:
+        return jsonify({'error': 'No data in session to generate report.'}), 400
+    
+    df = pd.read_json(df_json)
+
+    # --- Recreate the data table for the report ---
+    try:
+        x_axis = chart_config.get('x_axis')
+        y_axis = chart_config.get('y_axis')
+        
+        df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce').fillna(0)
+        
+        report_df = df.groupby(x_axis)[y_axis].sum().reset_index()
+        report_df = report_df.sort_values(by=y_axis, ascending=False)
+        report_df[y_axis] = report_df[y_axis].apply(lambda x: f"{x:,.2f}")
+
+    except Exception as e:
+        print(f"Error processing data for PDF: {e}")
+        return jsonify({'error': 'Could not process data for the report.'}), 500
+
+    # --- Generate the PDF ---
+    pdf = FPDF()
+    pdf.add_page()
+
+    # Title
+    pdf.set_font('Arial', 'B', 16)
+    pdf.cell(0, 10, title, 0, 1, 'C')
+    pdf.ln(10)
+
+    # Insights
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, 'Key Insights', 0, 1)
+    pdf.set_font('Arial', '', 10)
+    pdf.multi_cell(0, 5, insights_text)
+    pdf.ln(10)
+
+    # Data Table
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, 'Underlying Data', 0, 1)
+    pdf.set_font('Arial', '', 10)
+    
+    # Table Header
+    pdf.set_fill_color(230, 230, 230)
+    pdf.cell(95, 10, x_axis, 1, 0, 'C', 1)
+    pdf.cell(95, 10, y_axis, 1, 1, 'C', 1)
+
+    # Table Rows
+    for index, row in report_df.head(20).iterrows(): # Limit to top 20 rows for PDF
+        pdf.cell(95, 10, str(row[x_axis]), 1, 0)
+        pdf.cell(95, 10, str(row[y_axis]), 1, 1, 'R')
+
+    # --- Send the PDF to the user ---
+    buffer = io.BytesIO()
+    pdf.output(buffer)
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=f'{title.replace(" ", "_")}_Report.pdf',
+        mimetype='application/pdf'
+    )
+
+@app.route('/generate-sql', methods=['POST'])
+@login_required
+def generate_sql():
+    data = request.get_json()
+    user_query = data.get('query')
+    
+    # In a real app, you might also pass table schema information here
+    generated_sql = generate_sql_from_text(user_query)
+    
+    return jsonify({'sql_query': generated_sql})
+
+@app.route('/data/from_db', methods=['POST'])
+@login_required
+def data_from_db():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Invalid request. No data received.'}), 400
+    
+    # Get all connection details from the request
+    user = data.get('user')
+    password = data.get('password')
+    host = data.get('host')
+    dbname = data.get('name')
+    query = data.get('query')
+
+    if not all([user, password, host, dbname, query]):
+        return jsonify({'error': 'Missing connection details or query.'}), 400
+
+    db_uri = f"postgresql+psycopg2://{user}:{password}@{host}/{dbname}"
+
+    # --- DIAGNOSTIC PRINT ---
+    # Print a safe version of the URI to your terminal to help debug.
+    safe_uri = f"postgresql+psycopg2://{user}:****@{host}/{dbname}"
+    print(f"--- Attempting to connect to: {safe_uri} ---")
+
+    try:
+        engine = create_engine(db_uri)
+        with engine.connect() as connection:
+            print("--- Connection to database successful. ---")
+            df = pd.read_sql_query(text(query), connection)
+            print(f"--- Query executed successfully, fetched {len(df)} rows. ---")
+        
+        session['dataframe'] = df.to_json()
+        return jsonify({'success': True})
+
+    except ImportError:
+        print("--- IMPORT ERROR: The 'psycopg2' library is likely not installed correctly. ---")
+        return jsonify({'error': "Database driver 'psycopg2' not found. Please run 'pip install psycopg2-binary'."}), 500
+    except OperationalError as e:
+        print(f"--- DATABASE OPERATIONAL ERROR: {e} ---")
+        return jsonify({'error': 'Connection failed. Please check your host, database name, username, and password.'}), 500
+    except Exception as e:
+        print(f"--- AN UNEXPECTED ERROR OCCURRED: {e} ---")
+        # This could be a syntax error in the SQL query itself.
+        return jsonify({'error': f'An error occurred: {e}'}), 500
+
 @app.after_request
 def add_header(response):
     """
@@ -99,7 +275,8 @@ def index():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data, method='pbkdf2:sha256')
+        # Use a more secure password hashing method
+        hashed_password = generate_password_hash(form.password.data)
         new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
@@ -114,6 +291,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
+            log_activity('login') # Log user login
             return redirect(url_for('dashboard'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
@@ -128,10 +306,53 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    print(f"--- Loading dashboard for user: {current_user.id} ({current_user.username}) ---")
-    projects = Project.query.filter_by(user_id=current_user.id).order_by(Project.name).all()
-    print(f"--- Found {len(projects)} project(s) for this user. ---")
-    return render_template('dashboard.html', name=current_user.username, projects=projects)
+    # Fetch all projects for the main panel
+    projects = Project.query.filter_by(user_id=current_user.id).order_by(Project.last_modified.desc()).all()
+
+    # --- Data for Snapshot Panel ---
+    last_activity = UserActivity.query.filter_by(user_id=current_user.id, action='load_project') \
+                                     .order_by(UserActivity.timestamp.desc()).first()
+    
+    last_analyzed_project = last_activity.project_name if last_activity else "None"
+
+    # --- Data for Account Info Panel ---
+    project_count = len(projects)
+    # Placeholder for storage - this is complex to calculate accurately with JSON text fields
+    # We'll represent it as a fixed value for now.
+    storage_used_mb = project_count * 15 # Estimate 15MB per project
+    storage_total_mb = 1024 # 1 GB
+
+    dashboard_data = {
+        "last_analyzed": last_analyzed_project,
+        "project_count": project_count,
+        "storage_used": storage_used_mb,
+        "storage_total": storage_total_mb,
+        "storage_percent": min(100, (storage_used_mb / storage_total_mb) * 100)
+    }
+
+    return render_template('dashboard.html', name=current_user.username, projects=projects, data=dashboard_data)
+
+@app.route('/tutorial/excel')
+@login_required
+def tutorial_excel():
+    return render_template('tutorial_excel.html')
+
+@app.route('/tutorial/chart')
+@login_required
+def tutorial_chart():
+    return render_template('tutorial_chart.html')
+
+@app.route('/tutorial/sql')
+@login_required
+def tutorial_sql():
+    return render_template('tutorial_sql.html')
+
+@app.route('/projects/list')
+@login_required
+def list_projects():
+    projects = Project.query.filter_by(user_id=current_user.id).order_by(Project.last_modified.desc()).all()
+    project_list = [{"id": p.id, "name": p.name} for p in projects]
+    return jsonify(project_list)
 
 @app.route('/project/save', methods=['POST'])
 @login_required
@@ -157,6 +378,7 @@ def save_project():
     elif action == 'overwrite':
         if existing_project:
             existing_project.project_data = df_json
+            # The 'onupdate' in the model will automatically handle the timestamp here
             db.session.commit()
             flash(f'Project "{project_name}" has been updated successfully!', 'success')
             return jsonify({'success': True})
@@ -183,6 +405,7 @@ def save_project():
             next_num = max(existing_nums) + 1
             final_name = f"{base_name} ({next_num})"
 
+        # The 'default' in the model will automatically set the timestamp here
         new_project = Project(name=final_name, project_data=df_json, user_id=current_user.id)
         db.session.add(new_project)
         db.session.commit()
@@ -211,7 +434,6 @@ def get_forecast_data():
         chart_data_df = df.groupby(x_axis)[y_axis].sum().reset_index()
 
         # Prepare data for linear regression
-        # We need a numeric sequence for the x-values
         X = np.arange(len(chart_data_df)).reshape(-1, 1)
         y = chart_data_df[y_axis].values
 
@@ -226,10 +448,18 @@ def get_forecast_data():
         # Create labels for the future periods
         last_label = chart_data_df[x_axis].iloc[-1]
         future_labels = []
-        if isinstance(last_label, (int, np.integer)):
-             future_labels = [str(i) for i in range(last_label + 1, last_label + 1 + periods)]
-        else:
-            future_labels = [f"Future {i+1}" for i in range(periods)]
+        try:
+            # Attempt to parse the last label as a date
+            last_date = pd.to_datetime(last_label)
+            # Generate future date labels
+            future_dates = pd.date_range(start=last_date + timedelta(days=1), periods=periods)
+            future_labels = [d.strftime('%Y-%m-%d') for d in future_dates]
+        except (ValueError, TypeError):
+            # Fallback for non-date or integer labels
+            if isinstance(last_label, (int, np.integer)):
+                 future_labels = [str(i) for i in range(last_label + 1, last_label + 1 + periods)]
+            else:
+                future_labels = [f"Future {i+1}" for i in range(periods)]
         
         forecast_data = {
             "labels": future_labels,
@@ -246,14 +476,12 @@ def get_forecast_data():
 @login_required
 def load_project(project_id):
     project = Project.query.get_or_404(project_id)
-
-    # Security check: ensure the user owns this project
     if project.user_id != current_user.id:
         flash('You are not authorized to view this project.', 'danger')
         return redirect(url_for('dashboard'))
     
-    # Load the project's data into the session
     session['dataframe'] = project.project_data
+    log_activity('load_project', project_name=project.name) # Log project loading
     
     flash(f'Project "{project.name}" loaded successfully.', 'success')
     return redirect(url_for('chart_builder'))
@@ -479,6 +707,47 @@ def handle_data_action():
     session['dataframe'] = df.to_json()
     return redirect(url_for('prepare_data'))
 
+@app.route('/ai-insights', methods=['POST'])
+@login_required
+def get_ai_insights():
+    # Simulate a delay to mimic a real AI API call
+    time.sleep(2) 
+
+    data = request.get_json()
+    chart_config = data.get('chart_config')
+    x_axis = chart_config.get('x_axis')
+    y_axis = chart_config.get('y_axis')
+
+    # Get the dataframe from the session
+    df_json = session.get('dataframe')
+    if not df_json:
+        return jsonify({'error': 'No data in session to analyze.'}), 400
+    
+    df = pd.read_json(df_json)
+
+    # --- This is where you would normally prepare data and call an LLM API ---
+    # For now, we will generate a simulated, dynamic response.
+    try:
+        report_df = df.groupby(x_axis)[y_axis].sum().reset_index()
+        top_item = report_df.loc[report_df[y_axis].idxmax()]
+        bottom_item = report_df.loc[report_df[y_axis].idxmin()]
+        average_val = report_df[y_axis].mean()
+
+        # Simulated AI Responses
+        responses = [
+            f"The analysis of '{y_axis}' by '{x_axis}' reveals a significant trend. The highest value is observed in '{top_item[x_axis]}' with a total of {top_item[y_axis]:,.2f}, which is substantially above the average of {average_val:,.2f}.\\n\\nConversely, '{bottom_item[x_axis]}' shows the lowest performance at {bottom_item[y_axis]:,.2f}. This disparity suggests a key area for potential investigation or improvement.",
+            f"Looking at the distribution of '{y_axis}' across '{x_axis}', it's clear that '{top_item[x_axis]}' is the top performer, contributing {top_item[y_axis]:,.2f}.\\n\\nOn the other end of the spectrum is '{bottom_item[x_axis]}'. It would be beneficial to explore the factors driving the success of '{top_item[x_axis]}' and apply those learnings elsewhere.",
+            f"A key insight from this data is the standout performance of '{top_item[x_axis]}', which recorded a '{y_axis}' of {top_item[y_axis]:,.2f}.\\n\\nThis is a major outlier when compared to the lowest value from '{bottom_item[x_axis]}'. The data suggests a strong concentration of '{y_axis}' in the top category."
+        ]
+        
+        ai_summary = random.choice(responses)
+
+        return jsonify({'insights': ai_summary})
+
+    except Exception as e:
+        print(f"Error in AI insights generation: {e}")
+        return jsonify({'error': 'Could not generate AI insights from the data.'}), 500
+
 @app.route('/chart-builder')
 @login_required
 def chart_builder():
@@ -579,6 +848,22 @@ def get_chart_data():
             df = df[df[filter_col].astype(str) == str(filter_val)]
 
     try:
+        if chart_type == 'table':
+            # For a table, we return the aggregated data directly
+            df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce').fillna(0)
+            table_df = df.groupby(x_axis)[y_axis].sum().reset_index()
+            chart_data = table_df.to_html(classes='table table-hover', index=False)
+            insights = {"Rows": len(table_df)}
+            response_data = {"chart_data": chart_data, "insights": insights}
+
+        elif chart_type == 'treemap':
+            df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce').fillna(0)
+            tree_df = df.groupby(x_axis)[y_axis].sum().reset_index()
+            # Treemaps need a specific data structure
+            chart_data = [{"name": row[x_axis], "value": float(row[y_axis])} for index, row in tree_df.iterrows()]
+            insights = {"Categories": len(tree_df)}
+            response_data = {"chart_data": chart_data, "insights": insights}
+
         # Conditional logic based on chart type
         if chart_type == 'scatter':
             # For scatter plots, we need two numeric columns without aggregation.
@@ -646,20 +931,16 @@ def get_chart_data():
 if __name__ == '__main__':
     # --- START DIAGNOSTIC ---
     print("--- DIAGNOSTICS ---")
-    print(f"Project Base Directory: {basedir}")
+    # Use app.root_path, a reliable way to get the app's root directory
+    print(f"Project Base Directory: {app.root_path}") 
     print(f"Database URI is: {app.config['SQLALCHEMY_DATABASE_URI']}")
     print("-------------------")
     # --- END DIAGNOSTIC ---
     
     with app.app_context():
-        # The instance folder path is derived from the URI
-        instance_folder = os.path.join(basedir, 'instance')
-        if not os.path.exists(instance_folder):
-            print(f"Instance folder not found. Creating it at: {instance_folder}")
-            os.makedirs(instance_folder)
-
-        # Create uploads folder if it doesn't exist
-        upload_folder = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
+        # The instance folder is already handled by the app configuration.
+        # We just need to ensure the 'uploads' folder exists.
+        upload_folder = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
         if not os.path.exists(upload_folder):
             print(f"Uploads folder not found. Creating it at: {upload_folder}")
             os.makedirs(upload_folder)

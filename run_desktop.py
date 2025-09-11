@@ -2,6 +2,8 @@ import webview
 from app import app, db
 import threading
 import os
+import time
+import requests
 
 # --- Function to run the Flask app ---
 def run_flask_app():
@@ -20,16 +22,22 @@ def run_flask_app():
     app.run(debug=False)
 
 if __name__ == '__main__':
-    # Start the Flask server in a separate thread
     flask_thread = threading.Thread(target=run_flask_app)
     flask_thread.daemon = True
     flask_thread.start()
 
-    # Create and start the PyWebView window
-    # This window will load the URL of our running Flask app.
+    # Wait for the server to start
+    while True:
+        try:
+            response = requests.get(f'http://127.0.0.1:{app.config.get("PORT", 5000)}')
+            if response.status_code == 200:
+                break
+        except requests.ConnectionError:
+            time.sleep(0.1)
+
     webview.create_window(
-        'Inlytix BI',  # Window Title
-        'http://127.0.0.1:5000', # URL to load
+        'Etlytix BI',
+        f'http://127.0.0.1:{app.config.get("PORT", 5000)}',
         width=1280,
         height=720
     )
