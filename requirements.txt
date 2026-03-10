@@ -10,3 +10,11 @@ fpdf2
 email-validator
 psycopg2-binary
 plotly
+fpdf
+numpy
+pywebview
+requests
+scikit-learn
+sqlalchemy
+werkzeug
+wtforms

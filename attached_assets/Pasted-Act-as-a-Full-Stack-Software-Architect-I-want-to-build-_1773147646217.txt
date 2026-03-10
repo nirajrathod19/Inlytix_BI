@@ -1,0 +1,27 @@
+Act as a Full-Stack Software Architect. I want to build a professional Business Intelligence (BI) SaaS platform called "Etlytix BI." 
+
+Please build the application with the following requirements, maintaining a clean, professional dark-themed dashboard design:
+
+1. **System Architecture:**
+   - Use Flask for the backend and SQLAlchemy for database management.
+   - Implement a strictly separate and secure Login/Registration system using Flask-Login and Werkzeug for password hashing.
+   - Ensure a clear separation of concerns: routes in `app.py`, models in `models.py`, and logic in `services/`.
+
+2. **Advanced Data Integration:**
+   - Create a 'Connection Manager' that allows users to connect to external PostgreSQL and MySQL databases.
+   - Implement a "Data Gatekeeper" logic: when importing large datasets, check the user's storage limit (1GB) and only ingest up to the limit to prevent system crashes.
+
+3. **Core Features (The Power BI Killer):**
+   - **Automated Data Preparation:** Add a "Smart-Clean" button that automatically handles null values, removes duplicates, and standardizes date formats in pandas.
+   - **Interactive Chart Builder:** Build a dashboard where users can drag and drop multiple charts (using Chart.js or Plotly) onto a single responsive grid layout.
+   - **AI-SQL Assistant:** Integrate an LLM API to allow users to type "Show me revenue by region" and have the app generate and execute the SQL query automatically.
+
+4. **Design & UI/UX:**
+   - Follow the existing design language: use a sidebar for navigation, a top navbar for user profile/settings, and a card-based layout for the dashboard.
+   - Implement "State Persistence": if a user refreshes the page, their current project and filters should remain active.
+
+5. **Security & Performance:**
+   - Add CSRF protection via Flask-WTF.
+   - Optimize data fetching by using session-based caching for large dataframes.
+
+Please start by setting up the file structure and the database models for Users, Projects, and DataConnections.
