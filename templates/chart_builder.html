@@ -13,13 +13,39 @@
                     <div class="mb-3">
                         <label for="chartType" class="form-label">Chart Type</label>
                         <select id="chartType" class="form-select">
-                            <option value="bar">Bar Chart</option>
-                            <option value="line">Line Chart</option>
-                            <option value="pie">Pie Chart</option>
-                            <option value="doughnut">Doughnut Chart</option>
-                            <option value="scatter">Scatter Plot</option>
-                            <option value="table">Table</option>
-                            <option value="treemap">Treemap</option>
+                            <optgroup label="Bar / Column">
+                                <option value="bar">Bar Chart</option>
+                                <option value="bar-h">Horizontal Bar</option>
+                                <option value="histogram">Histogram</option>
+                            </optgroup>
+                            <optgroup label="Line / Area">
+                                <option value="line">Line Chart</option>
+                                <option value="area">Area Chart</option>
+                            </optgroup>
+                            <optgroup label="Circular">
+                                <option value="pie">Pie Chart</option>
+                                <option value="doughnut">Doughnut Chart</option>
+                                <option value="polarArea">Polar Area</option>
+                            </optgroup>
+                            <optgroup label="Multi-axis">
+                                <option value="radar">Radar Chart</option>
+                                <option value="scatter">Scatter Plot</option>
+                                <option value="bubble">Bubble Chart</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                                <option value="table">Table</option>
+                                <option value="treemap">Treemap</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="aggregation" class="form-label">Aggregation</label>
+                        <select id="aggregation" class="form-select">
+                            <option value="sum">Sum</option>
+                            <option value="mean">Average</option>
+                            <option value="count">Count</option>
+                            <option value="max">Max</option>
+                            <option value="min">Min</option>
                         </select>
                     </div>
                     <div class="mb-3">

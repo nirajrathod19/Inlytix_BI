@@ -536,20 +536,30 @@ def upload():
             flash('No files selected', 'danger')
             return redirect(request.url)
 
+        def _read_file(file):
+            fn = file.filename.lower()
+            if fn.endswith('.csv'):
+                return pd.read_csv(file)
+            elif fn.endswith(('.xls', '.xlsx')):
+                return pd.read_excel(file)
+            elif fn.endswith('.json'):
+                return pd.read_json(file)
+            elif fn.endswith(('.tsv', '.txt')):
+                return pd.read_csv(file, sep='\t')
+            elif fn.endswith('.parquet'):
+                return pd.read_parquet(file)
+            else:
+                return None
+
         try:
             # Case 1: A single file was uploaded
             if len(files) == 1:
                 file = files[0]
-                flash(f'Processing single file: {file.filename}', 'info')
-                if file.filename.endswith('.csv'):
-                    df = pd.read_csv(file)
-                elif file.filename.endswith(('.xls', '.xlsx')):
-                    df = pd.read_excel(file)
-                else:
-                    flash('Unsupported file type for single upload.', 'danger')
+                df = _read_file(file)
+                if df is None:
+                    flash('Unsupported file type. Supported: CSV, Excel, JSON, TSV, TXT, Parquet.', 'danger')
                     return redirect(request.url)
-                
-                # For a single file, save the dataframe and go straight to the prepare step
+                flash(f'Loaded {len(df):,} rows from {file.filename}', 'success')
                 session['dataframe'] = df.to_json()
                 return redirect(url_for('prepare_data'))
 
@@ -559,11 +569,8 @@ def upload():
                 uploaded_data = {}
                 for file in files:
                     filename = file.filename
-                    if filename.endswith('.csv'):
-                        df = pd.read_csv(file)
-                    elif filename.endswith(('.xls', '.xlsx')):
-                        df = pd.read_excel(file)
-                    else:
+                    df = _read_file(file)
+                    if df is None:
                         continue
                     
                     uploaded_data[filename] = df.to_json()
@@ -859,97 +866,125 @@ def get_chart_data():
     
     df = pd.read_json(df_json)
     chart_config = request.get_json()
-    x_axis = chart_config.get('x_axis')
-    y_axis = chart_config.get('y_axis')
-    chart_type = chart_config.get('chart_type')
+    x_axis      = chart_config.get('x_axis')
+    y_axis      = chart_config.get('y_axis')
+    size_col    = chart_config.get('size_col')
+    chart_type  = chart_config.get('chart_type')
+    agg_func    = chart_config.get('aggregation', 'sum')
+    top_n       = int(chart_config.get('top_n', 0) or 0)
+
+    # Normalise aggregation
+    AGG_MAP = {'sum': 'sum', 'mean': 'mean', 'count': 'count', 'max': 'max', 'min': 'min'}
+    agg_func = AGG_MAP.get(agg_func, 'sum')
 
     # Handle incoming filters for interactive drill-down
     filter_col = chart_config.get('filter_col')
     filter_val = chart_config.get('filter_val')
-    if filter_col and filter_val is not None:
-        # Robustly filter by attempting to match data types.
+    if filter_col and filter_val is not None and filter_col in df.columns:
         try:
-            # Get the data type of the column we are filtering on.
             col_dtype = df[filter_col].dtype
-            # Convert the filter value to the same type.
             typed_filter_val = pd.Series([filter_val]).astype(col_dtype).iloc[0]
             df = df[df[filter_col] == typed_filter_val]
         except (ValueError, TypeError):
-             # If type conversion fails, fall back to string comparison.
             df = df[df[filter_col].astype(str) == str(filter_val)]
 
     try:
         if chart_type == 'table':
-            # For a table, we return the aggregated data directly
             df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce').fillna(0)
-            table_df = df.groupby(x_axis)[y_axis].sum().reset_index()
+            table_df = df.groupby(x_axis)[y_axis].agg(agg_func).reset_index()
             chart_data = table_df.to_html(classes='table table-hover', index=False)
-            insights = {"Rows": len(table_df)}
-            response_data = {"chart_data": chart_data, "insights": insights}
+            response_data = {"chart_data": chart_data, "insights": {"Rows": len(table_df)},
+                             "labels": table_df[x_axis].astype(str).tolist(),
+                             "values": table_df[y_axis].round(4).tolist()}
 
         elif chart_type == 'treemap':
             df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce').fillna(0)
-            tree_df = df.groupby(x_axis)[y_axis].sum().reset_index()
-            # Treemaps need a specific data structure
-            chart_data = [{"name": row[x_axis], "value": float(row[y_axis])} for index, row in tree_df.iterrows()]
-            insights = {"Categories": len(tree_df)}
-            response_data = {"chart_data": chart_data, "insights": insights}
+            tree_df = df.groupby(x_axis)[y_axis].agg(agg_func).reset_index()
+            if top_n > 0:
+                tree_df = tree_df.nlargest(top_n, y_axis)
+            chart_data = [{"name": str(row[x_axis]), "value": float(row[y_axis])} for _, row in tree_df.iterrows()]
+            response_data = {"chart_data": chart_data, "insights": {"Categories": len(tree_df)},
+                             "labels": tree_df[x_axis].astype(str).tolist(),
+                             "values": tree_df[y_axis].round(4).tolist()}
 
-        # Conditional logic based on chart type
-        if chart_type == 'scatter':
-            # For scatter plots, we need two numeric columns without aggregation.
+        elif chart_type == 'scatter':
             df[x_axis] = pd.to_numeric(df[x_axis], errors='coerce')
             df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce')
-            
-            # Drop rows where either axis is not a number.
             scatter_df = df[[x_axis, y_axis]].dropna()
-            
-            # Format data as an array of {x, y} objects for Chart.js.
-            chart_data = [{'x': row[x_axis], 'y': row[y_axis]} for index, row in scatter_df.iterrows()]
-            
-            # Calculate correlation as an insight, handle case with no data.
+            chart_data = [{'x': row[x_axis], 'y': row[y_axis]} for _, row in scatter_df.iterrows()]
             correlation = scatter_df[x_axis].corr(scatter_df[y_axis]) if not scatter_df.empty else 0
             insights = {
                 "Correlation Coefficient": f"{correlation:.4f}",
-                "Note": "A value near +1 indicates a strong positive correlation, -1 a strong negative, and 0 no correlation."
+                "Note": "Near +1 = strong positive, -1 = strong negative, 0 = no correlation."
             }
-            response_data = {"chart_data": chart_data, "insights": insights}
+            response_data = {"chart_data": chart_data, "insights": insights,
+                             "labels": scatter_df[x_axis].tolist(),
+                             "values": scatter_df[y_axis].tolist()}
+
+        elif chart_type == 'bubble':
+            for col in [x_axis, y_axis, size_col]:
+                if col and col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+            bubble_df = df[[c for c in [x_axis, y_axis, size_col] if c]].dropna()
+            s_min = bubble_df[size_col].min() if size_col else 1
+            s_max = bubble_df[size_col].max() if size_col else 1
+            s_range = (s_max - s_min) or 1
+            bubble_data = []
+            for _, row in bubble_df.iterrows():
+                r = 5 + 35 * (row[size_col] - s_min) / s_range if size_col else 10
+                bubble_data.append({'x': row[x_axis], 'y': row[y_axis], 'r': round(r, 1)})
+            response_data = {"chart_data": bubble_data, "bubble_data": bubble_data,
+                             "labels": bubble_df[x_axis].astype(str).tolist(),
+                             "values": bubble_df[y_axis].tolist(),
+                             "insights": {"Points": len(bubble_data)}}
 
         else:
-            # --- Existing logic for aggregated charts (bar, line, pie) ---
-            df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce').fillna(0)
+            # Aggregated charts – bar, line, pie, doughnut, radar, polarArea, histogram
+            if not x_axis or x_axis not in df.columns:
+                return jsonify({'error': f'Column "{x_axis}" not found.'}), 400
 
-            # Check if there's any data left after filtering
-            if df.empty or x_axis not in df.columns or y_axis not in df.columns:
-                return jsonify({'chart_data': [], 'insights': {'Message': 'No data available for this selection.'}})
+            if chart_type == 'histogram':
+                df[x_axis] = pd.to_numeric(df[x_axis], errors='coerce').dropna()
+                counts, edges = np.histogram(df[x_axis].dropna(), bins=20)
+                labels  = [f"{edges[i]:.1f}–{edges[i+1]:.1f}" for i in range(len(counts))]
+                values  = counts.tolist()
+                chart_data_df = None
+            else:
+                df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce').fillna(0)
+                if df.empty or y_axis not in df.columns:
+                    return jsonify({'chart_data': [], 'labels': [], 'values': [],
+                                    'insights': {'Message': 'No data for this selection.'}})
+                chart_data_df = df.groupby(x_axis)[y_axis].agg(agg_func).reset_index()
+                chart_data_df.columns = ['key', 'value']
+                chart_data_df = chart_data_df.sort_values('value', ascending=False)
+                if top_n > 0:
+                    chart_data_df = chart_data_df.head(top_n)
+                labels = chart_data_df['key'].astype(str).tolist()
+                values = chart_data_df['value'].round(4).tolist()
 
-            chart_data_df = pd.pivot_table(
-                df, 
-                index=x_axis, 
-                values=y_axis, 
-                aggfunc='sum'
-            ).reset_index()
-            
-            chart_data_df = chart_data_df.rename(columns={x_axis: 'key', y_axis: 'value'})
-            
-            # Insights calculation
-            total_value = chart_data_df['value'].sum()
-            average_value = chart_data_df['value'].mean()
-            max_item = chart_data_df.loc[chart_data_df['value'].idxmax()]
-            min_item = chart_data_df.loc[chart_data_df['value'].idxmin()]
-            category_count = chart_data_df['key'].nunique()
+            if chart_data_df is not None:
+                total_value    = chart_data_df['value'].sum()
+                average_value  = chart_data_df['value'].mean()
+                max_item       = chart_data_df.loc[chart_data_df['value'].idxmax()]
+                min_item       = chart_data_df.loc[chart_data_df['value'].idxmin()]
+                insights = {
+                    "Total":   f"{total_value:,.2f}",
+                    "Average": f"{average_value:,.2f}",
+                    f"Highest ({max_item['key']})": f"{max_item['value']:,.2f}",
+                    f"Lowest ({min_item['key']})":  f"{min_item['value']:,.2f}",
+                    "Categories": str(chart_data_df['key'].nunique()),
+                }
+                chart_data = chart_data_df.rename(columns={'key': x_axis, 'value': y_axis}).to_dict(orient='records')
+            else:
+                insights   = {"Bins": len(labels)}
+                chart_data = [{'key': l, 'value': v} for l, v in zip(labels, values)]
 
-            insights = {
-                "Total": f"{total_value:,.2f}",
-                "Average": f"{average_value:,.2f}",
-                f"Highest ({max_item['key']})": f"{max_item['value']:,.2f}",
-                f"Lowest ({min_item['key']})": f"{min_item['value']:,.2f}",
-                "Number of Categories": f"{category_count}"
+            response_data = {
+                "chart_data": chart_data,
+                "labels":     labels,
+                "values":     values,
+                "insights":   insights,
             }
-            
-            # Format data for bar/line/pie charts
-            chart_data = chart_data_df.to_dict(orient='records')
-            response_data = {"chart_data": chart_data, "insights": insights}
 
         return jsonify(response_data)
 
@@ -1200,6 +1235,23 @@ def global_search():
             pass
 
     return jsonify({'results': results[:12]})
+
+
+@app.route('/dashboard-builder')
+@login_required
+def dashboard_builder_view():
+    df_json = session.get('dataframe')
+    if not df_json:
+        flash('Please upload a data file first to use the Dashboard Builder.', 'warning')
+        return redirect(url_for('upload'))
+    df = pd.read_json(df_json)
+    columns = df.columns.tolist()
+    numeric_cols = df.select_dtypes(include='number').columns.tolist()
+    categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+    return render_template('dashboard_builder.html',
+                           columns=columns,
+                           numeric_cols=numeric_cols,
+                           categorical_cols=categorical_cols)
 
 
 # --- Main Execution ---

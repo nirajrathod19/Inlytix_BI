@@ -1,38 +1,73 @@
 {% extends "layout.html" %}
-{% block title %}Register - AnalytixPro{% endblock %}
+{% block title %}Register – Etlytix BI{% endblock %}
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-5 col-md-7 col-sm-9">
             <div class="auth-card">
-                <h2 class="text-center mb-4">Create an Account</h2>
+                <div class="text-center mb-4">
+                    <img src="{{ url_for('static', filename='img/Logo.png') }}" alt="Logo" height="48" class="mb-2">
+                    <h2 class="fw-bold">Create an Account</h2>
+                    <p class="text-muted small">Start analysing your data for free</p>
+                </div>
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
                     <div class="mb-3">
-                        {{ form.username.label(class="form-label") }}
-                        {{ form.username(class="form-control form-control-lg") }}
+                        {{ form.username.label(class="form-label fw-semibold") }}
+                        {{ form.username(class="form-control form-control-lg" + (" is-invalid" if form.username.errors else ""), placeholder="Your name") }}
+                        {% for error in form.username.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     <div class="mb-3">
-                        {{ form.email.label(class="form-label") }}
-                        {{ form.email(class="form-control form-control-lg") }}
+                        {{ form.email.label(class="form-label fw-semibold") }}
+                        {{ form.email(class="form-control form-control-lg" + (" is-invalid" if form.email.errors else ""), placeholder="you@example.com") }}
+                        {% for error in form.email.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     <div class="mb-3">
-                        {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control form-control-lg") }}
+                        {{ form.password.label(class="form-label fw-semibold") }}
+                        <div class="input-group">
+                            {{ form.password(class="form-control form-control-lg" + (" is-invalid" if form.password.errors else ""), id="regPassword", placeholder="Min. 6 characters", autocomplete="new-password") }}
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('regPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            {% for error in form.password.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
                     </div>
                     <div class="mb-3">
-                        {{ form.confirm_password.label(class="form-label") }}
-                        {{ form.confirm_password(class="form-control form-control-lg") }}
+                        {{ form.confirm_password.label(class="form-label fw-semibold") }}
+                        <div class="input-group">
+                            {{ form.confirm_password(class="form-control form-control-lg" + (" is-invalid" if form.confirm_password.errors else ""), id="regConfirm", placeholder="Repeat password", autocomplete="new-password") }}
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePwd('regConfirm', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            {% for error in form.confirm_password.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
                     </div>
                     <div class="d-grid mt-4">
-                        {{ form.submit(class="btn btn-outline-dark btn-lg") }}
+                        {{ form.submit(class="btn btn-dark btn-lg") }}
                     </div>
                 </form>
-                <div class="text-center mt-3">
-                    <small class="text-muted">Already have an account? <a href="{{ url_for('login') }}" class="text-secondary">Log In</a></small>
+                <hr class="my-3">
+                <div class="text-center">
+                    <small class="text-muted">Already have an account? <a href="{{ url_for('login') }}" class="fw-semibold text-dark">Log in</a></small>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+function togglePwd(id, btn) {
+    const el = document.getElementById(id);
+    const showing = el.type === 'text';
+    el.type = showing ? 'password' : 'text';
+    btn.innerHTML = showing ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+}
+</script>
 {% endblock %}

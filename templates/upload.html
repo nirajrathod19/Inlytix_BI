@@ -1,35 +1,127 @@
 {% extends "layout.html" %}
-{% block title %}Upload Data{% endblock %}
+{% block title %}Upload Data – Etlytix BI{% endblock %}
 {% block content %}
-<h2>Upload Your Data File</h2>
-<p>Supports .csv, .xls, and .xlsx files.</p>
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="POST" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="file" class="form-label">Select file(s)</label>
-                <input type="file" name="files" class="form-control" multiple required>
-            </div>
-            <button type="submit" class="btn btn-primary">Upload and Continue</button>
-        </form>
-    </div>
-</div>
+<div class="container py-4">
+    <h2 class="mb-1 fw-bold">Upload Your Data</h2>
+    <p class="text-muted mb-4">Supports CSV, Excel (.xls / .xlsx), JSON, TSV, TXT, and Parquet files.</p>
 
-{% if summary %}
-<div class="card">
-    <div class="card-header">
-        Data Summary
-    </div>
-    <div class="card-body">
-        <p><strong>Rows:</strong> {{ summary.rows }}</p>
-        <p><strong>Columns:</strong> {{ summary.columns }}</p>
-        <p><strong>Column Names:</strong> {{ summary.column_names|join(', ') }}</p>
-        <h5 class="mt-4">Sample Data (First 5 Rows)</h5>
-        {{ sample_data|safe }}
-        <div class="text-center mt-4">
-            <a href="{{ url_for('chart_builder') }}" class="btn btn-success btn-lg">Proceed to Chart Builder</a>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-dropzone mb-3" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <p class="mb-1 fw-semibold">Drag &amp; drop files here, or click to browse</p>
+                    <p class="text-muted small">CSV · Excel · JSON · TSV · TXT · Parquet &nbsp;|&nbsp; Multiple files supported</p>
+                    <input type="file" name="files" id="fileInput"
+                           accept=".csv,.xls,.xlsx,.json,.tsv,.txt,.parquet"
+                           class="d-none" multiple required>
+                </div>
+                <div id="fileList" class="mb-3"></div>
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="fas fa-arrow-up-from-bracket me-2"></i>Upload &amp; Continue
+                </button>
+            </form>
         </div>
     </div>
+
+    {% if summary %}
+    <div class="card shadow-sm">
+        <div class="card-header fw-semibold">Data Summary</div>
+        <div class="card-body">
+            <div class="row g-3 mb-3">
+                <div class="col-sm-4">
+                    <div class="kpi-card text-center p-3">
+                        <div class="kpi-value">{{ summary.rows }}</div>
+                        <div class="kpi-label">Rows</div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="kpi-card text-center p-3">
+                        <div class="kpi-value">{{ summary.columns }}</div>
+                        <div class="kpi-label">Columns</div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="kpi-card text-center p-3">
+                        <div class="kpi-value">{{ summary.column_names|length }}</div>
+                        <div class="kpi-label">Fields</div>
+                    </div>
+                </div>
+            </div>
+            <p class="small text-muted"><strong>Columns:</strong> {{ summary.column_names|join(', ') }}</p>
+            <h5 class="mt-3">Sample Data (first 5 rows)</h5>
+            {{ sample_data|safe }}
+            <div class="d-flex gap-2 mt-4">
+                <a href="{{ url_for('prepare_data') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-broom me-2"></i>Clean &amp; Prepare
+                </a>
+                <a href="{{ url_for('chart_builder') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-chart-bar me-2"></i>Build Charts
+                </a>
+                <a href="{{ url_for('dashboard_builder_view') }}" class="btn btn-outline-dark btn-lg">
+                    <i class="fas fa-table-columns me-2"></i>Dashboard Builder
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
+
+<style>
+.upload-dropzone {
+    border: 2px dashed #adb5bd;
+    border-radius: 12px;
+    padding: 3rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+}
+.upload-dropzone:hover, .upload-dropzone.dragover {
+    background: #f0f7ff;
+    border-color: #0d6efd;
+}
+.file-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: #e9f0fb;
+    border-radius: 20px;
+    padding: .25rem .75rem;
+    font-size: .85rem;
+    margin: .2rem;
+}
+.file-pill .rm { cursor:pointer; color:#dc3545; }
+</style>
+<script>
+const dz = document.getElementById('dropZone');
+const fi = document.getElementById('fileInput');
+const list = document.getElementById('fileList');
+let dt = new DataTransfer();
+
+dz.addEventListener('click', () => fi.click());
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    [...e.dataTransfer.files].forEach(addFile);
+});
+fi.addEventListener('change', () => { [...fi.files].forEach(addFile); fi.value=''; });
+
+function addFile(f) {
+    dt.items.add(f);
+    fi.files = dt.files;
+    renderList();
+}
+function removeFile(name) {
+    const nd = new DataTransfer();
+    [...dt.files].filter(f => f.name !== name).forEach(f => nd.items.add(f));
+    dt = nd; fi.files = dt.files; renderList();
+}
+function renderList() {
+    list.innerHTML = [...dt.files].map(f =>
+        `<span class="file-pill"><i class="fas fa-file-alt"></i>${f.name}
+         <span class="rm" onclick="removeFile('${f.name}')">✕</span></span>`
+    ).join('');
+}
+</script>
 {% endblock %}

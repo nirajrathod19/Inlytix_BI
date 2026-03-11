@@ -1,0 +1,238 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard Builder – Etlytix BI{% endblock %}
+
+{% block content %}
+<!-- Pass column data to JS -->
+<script>
+    window.DB_COLUMNS      = {{ columns | tojson }};
+    window.DB_NUMERIC      = {{ numeric_cols | tojson }};
+    window.DB_CATEGORICAL  = {{ categorical_cols | tojson }};
+</script>
+
+<!-- Gridstack CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@8.4.0/dist/gridstack.min.css">
+
+<!-- Page Shell -->
+<div class="dbb-page">
+
+    <!-- ── Toolbar ─────────────────────────────────────────────── -->
+    <div class="dbb-toolbar d-flex align-items-center gap-2 flex-wrap">
+        <span class="fw-bold me-2"><i class="fas fa-table-columns me-1 text-primary"></i>Dashboard Builder</span>
+        <button class="btn btn-primary btn-sm" id="dbbAddChart">
+            <i class="fas fa-plus me-1"></i>Add Chart
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" id="dbbSave">
+            <i class="fas fa-floppy-disk me-1"></i>Save
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" id="dbbLoad">
+            <i class="fas fa-folder-open me-1"></i>Load
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" id="dbbExportPDF">
+            <i class="fas fa-file-pdf me-1"></i>Export PDF
+        </button>
+        <button class="btn btn-outline-danger btn-sm ms-auto" id="dbbClear">
+            <i class="fas fa-trash me-1"></i>Clear All
+        </button>
+
+        <!-- Active filter badge -->
+        <div id="dbbFilterBadge" class="dbb-filter-badge d-none">
+            <i class="fas fa-filter me-1"></i>Filtered: <strong id="dbbFilterVal"></strong>
+            <button class="btn-close btn-close-sm ms-2" id="dbbClearFilter" title="Clear filter"></button>
+        </div>
+    </div>
+
+    <!-- ── Grid Canvas ──────────────────────────────────────────── -->
+    <div class="dbb-canvas">
+        <div id="dbbEmptyHint" class="dbb-empty-hint">
+            <i class="fas fa-chart-area fa-3x mb-3 text-muted"></i>
+            <p class="text-muted">Click <strong>Add Chart</strong> to start building your dashboard</p>
+        </div>
+        <div class="grid-stack" id="dbbGrid"></div>
+    </div>
+</div>
+
+<!-- ── Add / Edit Chart Modal ───────────────────────────────────── -->
+<div class="modal fade" id="dbbModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="dbbModalTitle">Add Chart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editingWidgetId">
+                <div class="row g-3">
+                    <!-- Title -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Chart Title</label>
+                        <input type="text" class="form-control" id="dbbTitle" placeholder="e.g. Revenue by Region">
+                    </div>
+                    <!-- Chart Type -->
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Chart Type</label>
+                        <select class="form-select" id="dbbType">
+                            <option value="bar">Bar Chart</option>
+                            <option value="bar-h">Horizontal Bar</option>
+                            <option value="line">Line Chart</option>
+                            <option value="area">Area Chart</option>
+                            <option value="pie">Pie Chart</option>
+                            <option value="doughnut">Doughnut Chart</option>
+                            <option value="radar">Radar Chart</option>
+                            <option value="polarArea">Polar Area</option>
+                            <option value="scatter">Scatter Plot</option>
+                            <option value="bubble">Bubble Chart</option>
+                            <option value="histogram">Histogram</option>
+                            <option value="kpi">KPI Card</option>
+                        </select>
+                    </div>
+                    <!-- Aggregation -->
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Aggregation</label>
+                        <select class="form-select" id="dbbAgg">
+                            <option value="sum">Sum</option>
+                            <option value="mean">Average</option>
+                            <option value="count">Count</option>
+                            <option value="max">Max</option>
+                            <option value="min">Min</option>
+                        </select>
+                    </div>
+                    <!-- X Axis -->
+                    <div class="col-sm-6" id="xAxisGroup">
+                        <label class="form-label fw-semibold">X-Axis / Category</label>
+                        <select class="form-select" id="dbbX">
+                            <option value="">-- Select column --</option>
+                            {% for c in columns %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <!-- Y Axis -->
+                    <div class="col-sm-6" id="yAxisGroup">
+                        <label class="form-label fw-semibold">Y-Axis / Value</label>
+                        <select class="form-select" id="dbbY">
+                            <option value="">-- Select column --</option>
+                            {% for c in numeric_cols %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <!-- Bubble size (shown only for bubble) -->
+                    <div class="col-sm-6 d-none" id="sizeGroup">
+                        <label class="form-label fw-semibold">Bubble Size Column</label>
+                        <select class="form-select" id="dbbSize">
+                            <option value="">-- Select column --</option>
+                            {% for c in numeric_cols %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <!-- Color scheme -->
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Color Scheme</label>
+                        <select class="form-select" id="dbbColor">
+                            <option value="default">Default (Multi-color)</option>
+                            <option value="blue">Blue Gradient</option>
+                            <option value="green">Green Gradient</option>
+                            <option value="red">Red Gradient</option>
+                            <option value="purple">Purple Gradient</option>
+                            <option value="monochrome">Monochrome</option>
+                        </select>
+                    </div>
+                    <!-- Top N -->
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Top N Items (0 = all)</label>
+                        <input type="number" class="form-control" id="dbbTopN" value="0" min="0" max="100">
+                    </div>
+                    <!-- Preview hint -->
+                    <div class="col-12">
+                        <div id="dbbPreviewArea" class="dbb-preview-area">
+                            <canvas id="dbbPreviewCanvas" height="160"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary" id="dbbPreviewBtn">
+                    <i class="fas fa-eye me-1"></i>Preview
+                </button>
+                <button class="btn btn-primary" id="dbbAddBtn">
+                    <i class="fas fa-plus me-1"></i>Add to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gridstack + Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/gridstack@8.4.0/dist/gridstack.all.js"></script>
+
+<style>
+/* ── Dashboard Builder layout ───────────────────────── */
+.dbb-page { display:flex; flex-direction:column; height:calc(100vh - 120px); gap:0; }
+.dbb-toolbar {
+    background:#fff;
+    border:1px solid #dee2e6;
+    border-radius:10px;
+    padding:.6rem 1rem;
+    margin-bottom:.75rem;
+    flex-shrink:0;
+    box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.dbb-canvas {
+    flex:1; overflow:auto;
+    background:#f4f6fb;
+    border-radius:10px;
+    border:1px solid #dee2e6;
+    padding:.75rem;
+    position:relative;
+}
+.dbb-empty-hint {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center; pointer-events:none;
+    transition:opacity .3s;
+}
+.dbb-empty-hint.hidden { opacity:0; }
+
+/* ── Grid items ──────────────────────────────────────── */
+.grid-stack-item-content {
+    background:#fff;
+    border-radius:10px;
+    border:1px solid #e2e8f0;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.dbb-widget-header {
+    display:flex; align-items:center; gap:.4rem;
+    padding:.45rem .7rem;
+    background:#fafbfc;
+    border-bottom:1px solid #e9ecef;
+    flex-shrink:0;
+    min-height:36px;
+}
+.dbb-drag-handle { cursor:grab; color:#adb5bd; font-size:1rem; }
+.dbb-drag-handle:active { cursor:grabbing; }
+.dbb-widget-title { flex:1; font-weight:600; font-size:.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dbb-widget-actions { display:flex; gap:.3rem; }
+.dbb-widget-actions button {
+    background:none; border:none; color:#6c757d;
+    padding:.15rem .35rem; border-radius:4px; font-size:.8rem; cursor:pointer;
+    transition:background .15s, color .15s;
+}
+.dbb-widget-actions button:hover { background:#f0f4ff; color:#0d6efd; }
+.dbb-widget-body { flex:1; padding:.5rem; position:relative; min-height:0; }
+.dbb-widget-body canvas { max-height:100%; }
+/* KPI card */
+.dbb-kpi-card { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:.4rem; }
+.dbb-kpi-value { font-size:2.4rem; font-weight:700; color:#0d6efd; line-height:1; }
+.dbb-kpi-label { font-size:.9rem; color:#6c757d; }
+.dbb-kpi-sub { font-size:.8rem; color:#adb5bd; }
+
+/* Filter badge */
+.dbb-filter-badge {
+    display:inline-flex; align-items:center;
+    background:#fff3cd; border:1px solid #ffc107;
+    border-radius:20px; padding:.2rem .75rem;
+    font-size:.82rem; font-weight:500;
+}
+/* Preview */
+.dbb-preview-area { background:#f8f9fa; border-radius:8px; padding:.5rem; min-height:180px; }
+</style>
+
+<script src="{{ url_for('static', filename='js/dashboard_builder.js') }}"></script>
+{% endblock %}

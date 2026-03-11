@@ -67,12 +67,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── Primary Chart Generation ───────────────────────────
     function generatePrimaryChart(isExport = false) {
         return new Promise((resolve, reject) => {
-            const chartType = document.getElementById('chartType').value;
-            const xAxis     = document.getElementById('xAxis').value;
-            const yAxis     = document.getElementById('yAxis').value;
-            const animation = isExport ? { duration: 0 } : {};
+            const chartType   = document.getElementById('chartType').value;
+            const xAxis       = document.getElementById('xAxis').value;
+            const yAxis       = document.getElementById('yAxis').value;
+            const aggregation = (document.getElementById('aggregation') || {}).value || 'sum';
+            const animation   = isExport ? { duration: 0 } : {};
 
-            lastChartConfig = { chart_type: chartType, x_axis: xAxis, y_axis: yAxis };
+            lastChartConfig = { chart_type: chartType, x_axis: xAxis, y_axis: yAxis, aggregation };
 
             fetch('/get-chart-data', {
                 method: 'POST',
@@ -113,58 +114,80 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (clearFilterBtn) clearFilterBtn.classList.add('d-none');
 
                 let chartData, chartOptions;
+                const labels = data.labels || (data.chart_data ? data.chart_data.map(d => d.key || d.name) : []);
+                const values = data.values || (data.chart_data ? data.chart_data.map(d => d.value) : []);
 
-                if (chartType === 'scatter') {
+                // Resolve the actual Chart.js type
+                const circularTypes = ['pie','doughnut','polarArea','radar'];
+                const isCircular    = circularTypes.includes(chartType);
+                const isArea        = chartType === 'area';
+                const isBarH        = chartType === 'bar-h';
+                const isBubble      = chartType === 'bubble';
+                const isScatter     = chartType === 'scatter';
+                const cjsType       = isArea ? 'line' : isBarH ? 'bar' : isBubble ? 'bubble' : isScatter ? 'scatter' : chartType;
+                const indexAxis     = isBarH ? 'y' : 'x';
+
+                const multiColor    = (chartType === 'bar' || isBarH || isCircular || chartType === 'histogram')
+                    ? labels.map((_, i) => CHART_COLORS[i % CHART_COLORS.length])
+                    : 'rgba(79,70,229,.8)';
+
+                if (isScatter) {
                     chartData = {
                         datasets: [{
                             label: `${yAxis} vs ${xAxis}`,
                             data: data.chart_data,
-                            backgroundColor: 'rgba(79,70,229,.8)',
+                            backgroundColor: 'rgba(79,70,229,.7)',
+                            pointRadius: 5,
                         }]
                     };
-                    chartOptions = {
-                        animation,
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: { type: 'linear', position: 'bottom', title: { display: true, text: xAxis } },
-                            y: { title: { display: true, text: yAxis } }
-                        }
+                } else if (isBubble) {
+                    chartData = {
+                        datasets: [{
+                            label: `${xAxis} / ${yAxis}`,
+                            data: data.bubble_data || data.chart_data || [],
+                            backgroundColor: 'rgba(79,70,229,.6)',
+                        }]
                     };
                 } else {
-                    const isPieStyle = (chartType === 'pie' || chartType === 'doughnut');
-                    const bgColors   = (chartType === 'bar' || isPieStyle)
-                        ? data.chart_data.map((_, i) => CHART_COLORS[i % CHART_COLORS.length])
-                        : 'rgba(79,70,229,.8)';
-
                     chartData = {
-                        labels: data.chart_data.map(d => d.key),
+                        labels,
                         datasets: [{
-                            label: yAxis,
-                            data: data.chart_data.map(d => d.value),
-                            backgroundColor: bgColors,
-                            borderColor: 'rgba(255,255,255,.7)',
-                            borderWidth: chartType === 'line' ? 2.5 : 1,
+                            label: yAxis || xAxis,
+                            data: values,
+                            backgroundColor: multiColor,
+                            borderColor: isCircular ? 'rgba(255,255,255,.6)' : 'rgba(79,70,229,1)',
+                            borderWidth: (chartType === 'line' || isArea) ? 2.5 : 1,
+                            fill: isArea,
+                            tension: (chartType === 'line' || isArea) ? 0.35 : 0,
+                            pointRadius: (chartType === 'line' || isArea) ? 3 : undefined,
                         }]
-                    };
-                    chartOptions = {
-                        animation,
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        onClick: (_evt, elements) => {
-                            if (elements.length > 0) {
-                                const idx   = elements[0].index;
-                                const label = myChart.data.labels[idx];
-                                generateFilteredChart(xAxis, label);
-                                if (clearFilterBtn) clearFilterBtn.classList.remove('d-none');
-                            }
-                        },
-                        scales: (chartType === 'bar' || chartType === 'line')
-                            ? { y: { beginAtZero: true } } : {}
                     };
                 }
 
-                myChart = new Chart(ctx, { type: chartType, data: chartData, options: chartOptions });
+                chartOptions = {
+                    animation,
+                    indexAxis,
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: isCircular, position: 'bottom' },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    onClick: (_evt, elements) => {
+                        if (elements.length > 0) {
+                            const idx   = elements[0].index;
+                            const label = myChart.data.labels ? myChart.data.labels[idx] : '';
+                            generateFilteredChart(xAxis, label);
+                            if (clearFilterBtn) clearFilterBtn.classList.remove('d-none');
+                        }
+                    },
+                    scales: (isCircular || chartType === 'radar') ? {} : {
+                        x: { grid: { color: 'rgba(0,0,0,.04)' }, title: { display: !!xAxis, text: xAxis } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.06)' }, title: { display: !!yAxis, text: yAxis } },
+                    }
+                };
+
+                myChart = new Chart(ctx, { type: cjsType, data: chartData, options: chartOptions });
 
                 // Executive narrative (skip for table/treemap)
                 if (!['table', 'treemap', 'scatter'].includes(chartType)) {
@@ -203,14 +226,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const ctx2 = document.getElementById('myChart2').getContext('2d');
             if (myChart2) myChart2.destroy();
 
-            const bgColors = data.chart_data.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
+            const lbls  = data.labels || (data.chart_data ? data.chart_data.map(d => d.key) : []);
+            const vals  = data.values || (data.chart_data ? data.chart_data.map(d => d.value) : []);
+            const bgColors = lbls.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
             myChart2 = new Chart(ctx2, {
                 type: secondaryChartType,
                 data: {
-                    labels: data.chart_data.map(d => d.key),
+                    labels: lbls,
                     datasets: [{
                         label: `${yAxis} for "${filterValue}"`,
-                        data: data.chart_data.map(d => d.value),
+                        data: vals,
                         backgroundColor: bgColors,
                     }]
                 },
