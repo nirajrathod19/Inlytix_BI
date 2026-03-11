@@ -93,35 +93,68 @@
 .file-pill .rm { cursor:pointer; color:#dc3545; }
 </style>
 <script>
-const dz = document.getElementById('dropZone');
-const fi = document.getElementById('fileInput');
+const dz   = document.getElementById('dropZone');
+const fi   = document.getElementById('fileInput');
 const list = document.getElementById('fileList');
+const form = document.getElementById('uploadForm');
 let dt = new DataTransfer();
 
+// Click on zone → open native file picker
 dz.addEventListener('click', () => fi.click());
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+
+// Drag events
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('dragover'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
 dz.addEventListener('drop', e => {
-    e.preventDefault(); dz.classList.remove('dragover');
+    e.preventDefault();
+    dz.classList.remove('dragover');
     [...e.dataTransfer.files].forEach(addFile);
 });
-fi.addEventListener('change', () => { [...fi.files].forEach(addFile); fi.value=''; });
+
+// Native file picker selection
+fi.addEventListener('change', () => {
+    [...fi.files].forEach(addFile);
+    // Do NOT clear fi here — sync happens inside addFile
+});
 
 function addFile(f) {
-    dt.items.add(f);
-    fi.files = dt.files;
+    // Skip duplicates by name+size
+    const already = [...dt.files].some(x => x.name === f.name && x.size === f.size);
+    if (!already) dt.items.add(f);
+    syncInput();
     renderList();
 }
+
 function removeFile(name) {
     const nd = new DataTransfer();
     [...dt.files].filter(f => f.name !== name).forEach(f => nd.items.add(f));
-    dt = nd; fi.files = dt.files; renderList();
+    dt = nd;
+    syncInput();
+    renderList();
 }
+
+function syncInput() {
+    // Assign our managed FileList to the real input so the form includes all files
+    try { fi.files = dt.files; } catch (_) {}
+}
+
 function renderList() {
     list.innerHTML = [...dt.files].map(f =>
-        `<span class="file-pill"><i class="fas fa-file-alt"></i>${f.name}
-         <span class="rm" onclick="removeFile('${f.name}')">✕</span></span>`
+        `<span class="file-pill">
+            <i class="fas fa-file-alt me-1"></i>${f.name}
+            <span class="badge bg-secondary ms-1">${(f.size/1024).toFixed(0)} KB</span>
+            <span class="rm ms-2" onclick="removeFile('${f.name.replace(/'/g,"\\'")}')">✕</span>
+         </span>`
     ).join('');
 }
+
+// Final safety sync right before submission
+form.addEventListener('submit', e => {
+    syncInput();
+    if (dt.files.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one file before uploading.');
+    }
+});
 </script>
 {% endblock %}
