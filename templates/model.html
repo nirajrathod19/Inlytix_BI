@@ -5,16 +5,43 @@
     <h2>Data Modeling</h2>
     <p>Join your uploaded tables to create a unified dataset.</p>
 
+    {% if auto_suggestions %}
+    <div class="card mb-4" style="border-left:4px solid #3b82f6;">
+        <div class="card-body">
+            <h5 class="card-title" style="color:#3b82f6;">
+                <i class="fas fa-wand-magic-sparkles me-1"></i> Auto-Detected Relationships
+            </h5>
+            <p class="text-muted small mb-2">
+                Etlytix BI found the following potential join keys across your tables.
+                Click a suggestion to auto-fill the form below.
+            </p>
+            <div class="d-flex flex-wrap gap-2">
+                {% for s in auto_suggestions %}
+                <button class="btn btn-sm btn-outline-primary suggestion-btn"
+                        data-left="{{ s.left_table }}"
+                        data-right="{{ s.right_table }}"
+                        data-key="{{ s.key }}">
+                    <i class="fas fa-link me-1"></i>
+                    {{ s.left_table }} ↔ {{ s.right_table }} on <strong>{{ s.key }}</strong>
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Uploaded Tables</h5>
             <ul class="list-group list-group-flush mb-3">
                 {% for table_name in tables %}
-                <li class="list-group-item">{{ table_name }}</li>
+                <li class="list-group-item d-flex align-items-center gap-2">
+                    <i class="fas fa-table text-primary"></i> {{ table_name }}
+                </li>
                 {% endfor %}
             </ul>
 
-            <h5 class="card-title">Define Join</h5>
+            <h5 class="card-title mt-4">Define Join</h5>
             <form action="{{ url_for('merge_data') }}" method="POST">
                 <div class="row">
                     <div class="col-md-3">
@@ -30,11 +57,10 @@
                         <label>Join On</label>
                         <select id="left-key" name="left_key" class="form-select" required></select>
                     </div>
-
                     <div class="col-md-3">
                         <label>Right Table</label>
                         <select id="right-table" name="right_table" class="form-select" required>
-                             <option value="">Select Table...</option>
+                            <option value="">Select Table...</option>
                             {% for table_name in tables %}
                             <option value="{{ table_name }}">{{ table_name }}</option>
                             {% endfor %}
@@ -44,7 +70,6 @@
                         <label>Join On</label>
                         <select id="right-key" name="right_key" class="form-select" required></select>
                     </div>
-
                     <div class="col-md-2">
                         <label>Join Type</label>
                         <select name="join_type" class="form-select">
@@ -56,7 +81,9 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-end mt-3">
-                    <button type="submit" class="btn btn-primary">Merge Data & Proceed to Prepare</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-code-merge me-1"></i> Merge Data &amp; Proceed to Prepare
+                    </button>
                 </div>
             </form>
         </div>
@@ -64,25 +91,42 @@
 </div>
 
 <script>
-    // This script dynamically updates the 'Join On' dropdowns
-    const tableColumns = {{ table_columns|tojson }};
+const tableColumns = {{ table_columns|tojson }};
 
-    function updateKeyDropdown(tableSelectId, keySelectId) {
-        const selectedTable = document.getElementById(tableSelectId).value;
-        const keyDropdown = document.getElementById(keySelectId);
-        keyDropdown.innerHTML = ''; // Clear existing options
-
-        if (selectedTable && tableColumns[selectedTable]) {
-            tableColumns[selectedTable].forEach(column => {
-                const option = document.createElement('option');
-                option.value = column;
-                option.textContent = column;
-                keyDropdown.appendChild(option);
-            });
-        }
+function updateKeyDropdown(tableSelectId, keySelectId) {
+    const selectedTable = document.getElementById(tableSelectId).value;
+    const keyDropdown   = document.getElementById(keySelectId);
+    keyDropdown.innerHTML = '';
+    if (selectedTable && tableColumns[selectedTable]) {
+        tableColumns[selectedTable].forEach(column => {
+            const option = document.createElement('option');
+            option.value = column;
+            option.textContent = column;
+            keyDropdown.appendChild(option);
+        });
     }
+}
 
-    document.getElementById('left-table').addEventListener('change', () => updateKeyDropdown('left-table', 'left-key'));
-    document.getElementById('right-table').addEventListener('change', () => updateKeyDropdown('right-table', 'right-key'));
+document.getElementById('left-table').addEventListener('change',  () => updateKeyDropdown('left-table',  'left-key'));
+document.getElementById('right-table').addEventListener('change', () => updateKeyDropdown('right-table', 'right-key'));
+
+// Auto-fill form from suggestion buttons
+document.querySelectorAll('.suggestion-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const lt = btn.dataset.left;
+        const rt = btn.dataset.right;
+        const k  = btn.dataset.key;
+
+        document.getElementById('left-table').value  = lt;
+        updateKeyDropdown('left-table', 'left-key');
+        document.getElementById('left-key').value    = k;
+
+        document.getElementById('right-table').value = rt;
+        updateKeyDropdown('right-table', 'right-key');
+        document.getElementById('right-key').value   = k;
+
+        btn.classList.replace('btn-outline-primary', 'btn-primary');
+    });
+});
 </script>
 {% endblock %}

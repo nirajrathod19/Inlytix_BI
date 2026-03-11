@@ -2,20 +2,12 @@
 {% block title %}Chart Builder{% endblock %}
 {% block content %}
 
-<select id="topChartType" class="form-select">
-    <option value="bar">Bar Chart</option>
-    <option value="line">Line Chart</option>
-    <option value="pie">Pie (Donut) Chart</option>
-    <option value="doughnut">Doughnut Chart</option>
-    <option value="scatter">Scatter Plot</option> 
-    <option value="table">Table</option>
-    <option value="treemap">Treemap</option> </select>
-
-<div id="dashboard-content"> 
-<h2>Chart Builder</h2>
+<div id="dashboard-content">
+<h2 class="mb-4">Chart Builder</h2>
     <div class="row">
+        <!-- Left Controls -->
         <div class="col-md-3">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Chart Controls</h5>
                     <div class="mb-3">
@@ -23,8 +15,9 @@
                         <select id="chartType" class="form-select">
                             <option value="bar">Bar Chart</option>
                             <option value="line">Line Chart</option>
-                            <option value="pie">Pie (Donut) Chart</option>
+                            <option value="pie">Pie Chart</option>
                             <option value="doughnut">Doughnut Chart</option>
+                            <option value="scatter">Scatter Plot</option>
                             <option value="table">Table</option>
                             <option value="treemap">Treemap</option>
                         </select>
@@ -46,126 +39,176 @@
                         </select>
                     </div>
                     <hr>
-                    <div class="d-grid">
-                        <button id="saveProjectBtn" class="btn btn-secondary">Save Project</button>
+                    <div class="d-grid gap-2">
+                        <button id="createChartBtn" class="btn btn-primary">
+                            <i class="fas fa-chart-bar me-1"></i> Generate Chart
+                        </button>
+                        <button id="saveProjectBtn" class="btn btn-secondary">
+                            <i class="fas fa-floppy-disk me-1"></i> Save Project
+                        </button>
+                        <button id="exportPdfBtn" class="btn btn-danger">
+                            <span id="pdfSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                            <i class="fas fa-file-pdf me-1"></i> Export PDF
+                        </button>
                     </div>
-                    <div class="d-grid mt-2">
-                        <button id="createChartBtn" class="btn btn-primary">Generate Chart</button>
-                    </div>
-                    <hr>
-                    <button id="exportPdfBtn" class="btn btn-danger w-100">
-                        <span id="pdfSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                        Export PDF Report
+                </div>
+            </div>
+
+            <!-- Ask My Data -->
+            <div class="card mb-3" style="border-left:4px solid #8b5cf6;">
+                <div class="card-body">
+                    <h6 class="card-title" style="color:#8b5cf6;">
+                        <i class="fas fa-comments me-1"></i> Ask My Data
+                    </h6>
+                    <input type="text" id="askDataInput" class="form-control form-control-sm mb-2"
+                           placeholder="e.g. Who is my top customer?">
+                    <button id="askDataBtn" class="btn btn-sm w-100" style="background:#8b5cf6;color:white;">
+                        <span id="askSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                        Ask
                     </button>
                 </div>
             </div>
+
+            <!-- Forecasting -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">Line Forecasting</h6>
+                    <div class="input-group input-group-sm">
+                        <input type="number" id="forecastPeriods" class="form-control" placeholder="Periods" value="5" min="1">
+                        <button id="forecastBtn" class="btn btn-outline-primary">Forecast</button>
+                    </div>
+                    <small class="text-muted">Only for Line Charts.</small>
+                </div>
+            </div>
         </div>
 
+        <!-- Right Charts -->
         <div class="col-md-9">
-    <div class="card">
-        <div class="card-header">
-            Primary Chart
-            <button id="exportPdfBtn" class="btn btn-secondary" style="display: none;">
-                <i class="fas fa-file-pdf"></i> Export to PDF
-            </button>
-        </div>
-        <div class="card-body" id="chart-container">
-            <canvas id="myChart"></canvas>
-            <button id="exportPdfBtn" class="btn btn-secondary" style="display: none;">
-                <i class="fas fa-file-pdf"></i> Export to PDF
-            </button>
-        </div>
-    </div>
 
-    <div class="card mt-4" id="table-container" style="display: none;">
-        <div class="card-header">Table View</div>
-        <div class="card-body table-responsive" id="table-display-area">
-            <!-- Table will be rendered here by JavaScript -->
-        </div>
-    </div>
+            <!-- KPI Card from Ask My Data -->
+            <div id="kpiCardContainer" class="mb-3" style="display:none;">
+                <div class="kpi-card" id="kpiCard">
+                    <div class="kpi-icon"><i id="kpiIcon" class="fas fa-trophy"></i></div>
+                    <div class="kpi-body">
+                        <div class="kpi-title" id="kpiTitle">Result</div>
+                        <div class="kpi-value" id="kpiValue">—</div>
+                        <div class="kpi-label" id="kpiLabel"></div>
+                        <div class="kpi-subtitle" id="kpiSubtitle"></div>
+                    </div>
+                    <button onclick="document.getElementById('kpiCardContainer').style.display='none'"
+                            class="kpi-close"><i class="fas fa-xmark"></i></button>
+                </div>
+            </div>
 
+            <!-- Primary Chart -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Primary Chart</span>
+                    <span id="chartTitle" class="text-muted small"></span>
+                </div>
+                <div class="card-body" id="chart-container" style="position:relative; min-height:350px;">
+                    <canvas id="myChart" style="max-height:350px;"></canvas>
+                </div>
+            </div>
 
-    <div class="card mt-4">
-        <div class="card-header">
-            Filtered Details
-        </div>
-        <div class="card-body" id="chart-container-2">
-            <h5 id="chart2-title" class="text-center text-muted">Click on the primary chart to see details here.</h5>
-            <canvas id="myChart2"></canvas>
-        </div>
-    </div>
+            <!-- Executive Narrative -->
+            <div id="execNarrativeCard" class="card mb-3" style="display:none; border-left:4px solid #3b82f6;">
+                <div class="card-body">
+                    <h6 class="card-title" style="color:#3b82f6;">
+                        <i class="fas fa-newspaper me-1"></i> Executive Summary
+                    </h6>
+                    <p id="execNarrativeText" class="mb-0 small lh-lg"></p>
+                </div>
+            </div>
 
-    <div class="card mt-4">
-        <div class="card-body bg-light">
-            <h6 class="card-title text-muted">Filtered Details Chart Controls</h6>
-            <div class="row">
-                <div class="col-md-6">
-                    <label class="form-label-sm">Breakdown By (X-Axis)</label>
-                    <select id="secondaryXAxis" class="form-select form-select-sm">
-                        {% for col in categorical_cols %}
-                            <option value="{{ col }}">{{ col }}</option>
+            <!-- Table View -->
+            <div class="card mb-3" id="table-container" style="display: none;">
+                <div class="card-header">Table View</div>
+                <div class="card-body table-responsive" id="table-display-area"></div>
+            </div>
+
+            <!-- Cross-Filter Drill-Down -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Drill-Down <small class="text-muted">(click a chart segment to filter)</small></span>
+                    <button id="clearFilterBtn" class="btn btn-sm btn-outline-secondary d-none">
+                        <i class="fas fa-filter-circle-xmark me-1"></i> Clear Filter
+                    </button>
+                </div>
+                <div class="card-body" id="chart-container-2" style="min-height:250px;">
+                    <h5 id="chart2-title" class="text-center text-muted mt-4">
+                        Click any bar, slice, or data point to drill down here.
+                    </h5>
+                    <canvas id="myChart2" style="max-height:280px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Drill-Down Controls -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Drill-Down Controls</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label-sm">Breakdown By (X-Axis)</label>
+                            <select id="secondaryXAxis" class="form-select form-select-sm">
+                                {% for col in categorical_cols %}
+                                <option value="{{ col }}">{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-sm">Chart Type</label>
+                            <select id="secondaryChartType" class="form-select form-select-sm">
+                                <option value="bar">Bar Chart</option>
+                                <option value="pie">Pie Chart</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    Automated Insights
+                    <button id="getAiInsightsBtn" class="btn btn-sm btn-primary" disabled>
+                        <i class="fas fa-robot me-1"></i> Get AI Insights
+                    </button>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm" id="insightsTable"></table>
+                    <div id="aiInsightsContainer" class="p-3 mt-2" style="display:none;">
+                        <div id="aiInsightsContent" class="text-muted small"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Story -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    Data Story
+                    <button id="addToStoryBtn" class="btn btn-sm btn-outline-success">
+                        <i class="fas fa-plus me-1"></i> Add View
+                    </button>
+                </div>
+                <div class="card-body">
+                    <ul id="storyList" class="list-group list-group-flush">
+                        {% for point in story_points %}
+                        <li class="list-group-item list-group-item-action" style="cursor:pointer;"
+                            onclick="loadStoryPoint({{ point.id }})">
+                            <i class="fas fa-bookmark me-2 text-primary"></i>{{ point.title }}
+                        </li>
                         {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label-sm">Chart Type</label>
-                    <select id="secondaryChartType" class="form-select form-select-sm">
-                        <option value="bar">Bar Chart</option>
-                        <option value="pie">Pie Chart</option>
-                    </select>
+                    </ul>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="card mt-4">
-        <div class="card-body">
-            <h5 class="card-title">Line Chart Forecasting</h5>
-            <div class="input-group">
-                <input type="number" id="forecastPeriods" class="form-control" placeholder="# of periods" value="5" min="1">
-                <button id="forecastBtn" class="btn btn-outline-primary">Forecast</button>
-            </div>
-            <small class="text-muted">Only applies to the primary Line Chart.</small>
-        </div>
-    </div>
-
-    <div class="card mt-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            Data Story
-            <button id="addToStoryBtn" class="btn btn-sm btn-outline-success" title="Add current view to story">+</button>
-        </div>
-        <div class="card-body">
-            <ul id="storyList" class="list-group list-group-flush">
-                <!-- Story points will be loaded here by JavaScript -->
-                {% for point in story_points %}
-                    <li class="list-group-item list-group-item-action" style="cursor: pointer;" onclick="loadStoryPoint({{ point.id }})">
-                        {{ point.title }}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    
-    <div class="card mt-4">
-        <div class="card-header">
-            Automated Insights
-        </div>
-        <div class="card-body">
-            <table class="table" id="insightsTable">
-                </table>
-        </div>
-        <button id="getAiInsightsBtn" class="btn btn-primary w-100" disabled>
-            <i class="fas fa-robot"></i> Get AI Insights
-        </button>
-            <div id="aiInsightsContainer" class="p-3 mt-3" style="display: none;">
-                <hr>
-                <h5><i class="fas fa-robot"></i> AI Analysis</h5>
-            <div id="aiInsightsContent" class="text-muted"></div>
         </div>
     </div>
 </div>
+
 <script>
     const categoricalColumns = {{ categorical_cols|tojson }};
-    const numericColumns = {{ numeric_cols|tojson }};
+    const numericColumns     = {{ numeric_cols|tojson }};
 </script>
 {% endblock %}

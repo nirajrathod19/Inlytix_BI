@@ -46,7 +46,24 @@ instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instan
 if not os.path.exists(instance_path):
     os.makedirs(instance_path)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "users.db")}'
+# Use Supabase PostgreSQL if available, otherwise fall back to SQLite
+def _build_db_uri():
+    url = os.environ.get('SUPABASE_DATABASE_URL', '').strip()
+    if not url:
+        return f'sqlite:///{os.path.join(instance_path, "users.db")}'
+    # Fix postgres:// → postgresql:// for SQLAlchemy 2.x
+    if url.startswith('postgres://'):
+        url = 'postgresql://' + url[len('postgres://'):]
+    # Validate it looks like a proper URI before using
+    if url.startswith('postgresql://') or url.startswith('postgresql+'):
+        return url
+    # Unrecognised format – fall back to SQLite
+    prefix = url[:30] if len(url) >= 30 else url
+    print(f"WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: '{prefix}...'), falling back to SQLite.")
+    print("Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'")
+    return f'sqlite:///{os.path.join(instance_path, "users.db")}'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = _build_db_uri()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -563,6 +580,19 @@ def upload():
     return render_template('upload.html')
 
 
+def detect_join_keys(table_columns):
+    """Auto-detect potential join keys (shared column names) between tables."""
+    suggestions = []
+    table_names = list(table_columns.keys())
+    for i in range(len(table_names)):
+        for j in range(i + 1, len(table_names)):
+            t1, t2 = table_names[i], table_names[j]
+            common_cols = set(table_columns[t1]) & set(table_columns[t2])
+            for col in common_cols:
+                suggestions.append({'left_table': t1, 'right_table': t2, 'key': col})
+    return suggestions
+
+
 @app.route('/model')
 @login_required
 def model_data():
@@ -571,14 +601,15 @@ def model_data():
         return redirect(url_for('upload'))
 
     table_names = list(uploaded_data.keys())
-    
-    # Create a dictionary of table_name: [col1, col2, ...] for the dynamic dropdowns
     table_columns = {}
     for name, df_json in uploaded_data.items():
         df = pd.read_json(df_json)
         table_columns[name] = df.columns.tolist()
 
-    return render_template('model.html', tables=table_names, table_columns=table_columns)
+    auto_suggestions = detect_join_keys(table_columns)
+
+    return render_template('model.html', tables=table_names, table_columns=table_columns,
+                           auto_suggestions=auto_suggestions)
 
 
 @app.route('/data/merge', methods=['POST'])
@@ -925,6 +956,250 @@ def get_chart_data():
     except Exception as e:
         print(f"Error in get-chart-data: {e}") 
         return jsonify({'error': str(e)}), 500
+
+
+# ─── Smart Clean ──────────────────────────────────────────────────────────────
+@app.route('/smart-clean', methods=['POST'])
+@login_required
+def smart_clean():
+    df_json = session.get('dataframe')
+    if not df_json:
+        return jsonify({'error': 'No data in session.'}), 400
+
+    df = pd.read_json(df_json)
+    report = []
+
+    # 1. Remove duplicates
+    dup_count = int(df.duplicated().sum())
+    if dup_count > 0:
+        df = df.drop_duplicates()
+        report.append(f"Removed {dup_count} duplicate row(s).")
+
+    # 2. Impute missing values
+    for col in df.columns:
+        missing = int(df[col].isnull().sum())
+        if missing > 0:
+            if pd.api.types.is_numeric_dtype(df[col]):
+                fill_val = round(float(df[col].mean()), 4)
+                df[col] = df[col].fillna(fill_val)
+                report.append(f"Filled {missing} missing value(s) in <strong>{col}</strong> with mean ({fill_val}).")
+            else:
+                mode_vals = df[col].mode()
+                fill_val = str(mode_vals.iloc[0]) if not mode_vals.empty else 'Unknown'
+                df[col] = df[col].fillna(fill_val)
+                report.append(f"Filled {missing} missing value(s) in <strong>{col}</strong> with mode ('{fill_val}').")
+
+    # 3. Standardize date columns to YYYY-MM-DD
+    for col in df.select_dtypes(include='object').columns:
+        try:
+            converted = pd.to_datetime(df[col], infer_datetime_format=True, errors='coerce')
+            if converted.notna().sum() > len(df) * 0.5:
+                df[col] = converted.dt.strftime('%Y-%m-%d')
+                report.append(f"Standardized date column <strong>{col}</strong> to YYYY-MM-DD.")
+        except Exception:
+            pass
+
+    # 4. Detect outliers (IQR) – store indices for front-end highlighting
+    outlier_map = {}
+    for col in df.select_dtypes(include='number').columns:
+        Q1, Q3 = df[col].quantile(0.25), df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        if IQR == 0:
+            continue
+        mask = (df[col] < Q1 - 1.5 * IQR) | (df[col] > Q3 + 1.5 * IQR)
+        idxs = df.index[mask].tolist()
+        if idxs:
+            outlier_map[col] = idxs
+            report.append(f"Detected {len(idxs)} outlier(s) in <strong>{col}</strong> (highlighted in preview).")
+
+    if not report:
+        report.append("Data is already clean — no issues found.")
+
+    session['dataframe'] = df.to_json()
+    session['outlier_map'] = outlier_map
+
+    # Rebuild preview with outlier highlighting
+    styled_rows = []
+    for idx, row in df.head(50).iterrows():
+        cells = []
+        for col in df.columns:
+            style = ' style="background:#7f1d1d;color:#fca5a5;"' if col in outlier_map and idx in outlier_map[col] else ''
+            cells.append(f'<td{style}>{row[col]}</td>')
+        styled_rows.append('<tr>' + ''.join(cells) + '</tr>')
+
+    header = '<tr>' + ''.join(f'<th>{c}</th>' for c in df.columns) + '</tr>'
+    table_html = f'<table class="table table-sm table-hover" id="dataPreviewTable"><thead class="table-dark">{header}</thead><tbody>{"".join(styled_rows)}</tbody></table>'
+
+    return jsonify({'success': True, 'report': report, 'table_html': table_html})
+
+
+# ─── Ask My Data (NL → KPI Card) ──────────────────────────────────────────────
+@app.route('/ask-data', methods=['POST'])
+@login_required
+def ask_data():
+    df_json = session.get('dataframe')
+    if not df_json:
+        return jsonify({'error': 'No data in session.'}), 400
+
+    df = pd.read_json(df_json)
+    data = request.get_json()
+    query = (data.get('query') or '').lower().strip()
+
+    numeric_cols  = df.select_dtypes(include='number').columns.tolist()
+    categorical_cols = df.select_dtypes(include='object').columns.tolist()
+
+    def best_col(cols, query_text):
+        for c in cols:
+            if c.lower() in query_text:
+                return c
+        return cols[0] if cols else None
+
+    try:
+        top_keywords    = ['top', 'highest', 'best', 'most', 'largest', 'maximum', 'max']
+        bottom_keywords = ['lowest', 'worst', 'minimum', 'min', 'least', 'bottom']
+        total_keywords  = ['total', 'sum', 'overall', 'revenue', 'sales']
+        avg_keywords    = ['average', 'mean', 'avg']
+        count_keywords  = ['count', 'how many', 'number of', 'unique']
+
+        if any(w in query for w in top_keywords) and numeric_cols and categorical_cols:
+            num_col = best_col(numeric_cols, query)
+            cat_col = best_col(categorical_cols, query)
+            grouped = df.groupby(cat_col)[num_col].sum()
+            label   = grouped.idxmax()
+            value   = grouped.max()
+            return jsonify({'title': f'Top {cat_col}', 'value': f'{value:,.2f}',
+                            'label': str(label), 'icon': 'fa-trophy', 'color': '#f59e0b',
+                            'subtitle': f'Highest {num_col} among all {cat_col} entries',
+                            'rows': len(df)})
+
+        elif any(w in query for w in bottom_keywords) and numeric_cols and categorical_cols:
+            num_col = best_col(numeric_cols, query)
+            cat_col = best_col(categorical_cols, query)
+            grouped = df.groupby(cat_col)[num_col].sum()
+            label   = grouped.idxmin()
+            value   = grouped.min()
+            return jsonify({'title': f'Bottom {cat_col}', 'value': f'{value:,.2f}',
+                            'label': str(label), 'icon': 'fa-arrow-trend-down', 'color': '#ef4444',
+                            'subtitle': f'Lowest {num_col} — potential improvement area',
+                            'rows': len(df)})
+
+        elif any(w in query for w in total_keywords) and numeric_cols:
+            num_col = best_col(numeric_cols, query)
+            value   = df[num_col].sum()
+            return jsonify({'title': f'Total {num_col}', 'value': f'{value:,.2f}',
+                            'label': f'Across {len(df):,} rows', 'icon': 'fa-sigma', 'color': '#3b82f6',
+                            'subtitle': f'Grand total of all {num_col} values',
+                            'rows': len(df)})
+
+        elif any(w in query for w in avg_keywords) and numeric_cols:
+            num_col = best_col(numeric_cols, query)
+            value   = df[num_col].mean()
+            return jsonify({'title': f'Average {num_col}', 'value': f'{value:,.2f}',
+                            'label': f'Over {len(df):,} records', 'icon': 'fa-chart-line', 'color': '#8b5cf6',
+                            'subtitle': f'Mean of all {num_col} values',
+                            'rows': len(df)})
+
+        elif any(w in query for w in count_keywords) and categorical_cols:
+            cat_col = best_col(categorical_cols, query)
+            value   = df[cat_col].nunique()
+            return jsonify({'title': f'Unique {cat_col}', 'value': str(value),
+                            'label': f'Distinct values found', 'icon': 'fa-list-ol', 'color': '#10b981',
+                            'subtitle': f'Total rows analysed: {len(df):,}',
+                            'rows': len(df)})
+
+        else:
+            # Default fallback – show dataset summary
+            if numeric_cols:
+                num_col = numeric_cols[0]
+                value   = df[num_col].sum()
+                return jsonify({'title': f'Total {num_col}', 'value': f'{value:,.2f}',
+                                'label': 'Based on full dataset', 'icon': 'fa-database', 'color': '#3b82f6',
+                                'subtitle': f'Try asking: "Who is my top customer?" or "What is the total revenue?"',
+                                'rows': len(df)})
+            return jsonify({'error': 'Could not understand the query. Try: "total revenue", "top customer", "average sales".'}), 400
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ─── Executive Narrative ───────────────────────────────────────────────────────
+@app.route('/executive-narrative', methods=['POST'])
+@login_required
+def executive_narrative():
+    df_json = session.get('dataframe')
+    if not df_json:
+        return jsonify({'error': 'No data.'}), 400
+
+    df   = pd.read_json(df_json)
+    data = request.get_json()
+    x_axis     = data.get('x_axis')
+    y_axis     = data.get('y_axis')
+    chart_type = data.get('chart_type', 'bar')
+
+    if not x_axis or not y_axis or x_axis not in df.columns or y_axis not in df.columns:
+        return jsonify({'error': 'Invalid axes.'}), 400
+
+    try:
+        df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce').fillna(0)
+        grouped = df.groupby(x_axis)[y_axis].sum().reset_index()
+
+        total     = grouped[y_axis].sum()
+        avg       = grouped[y_axis].mean()
+        top       = grouped.loc[grouped[y_axis].idxmax()]
+        bottom    = grouped.loc[grouped[y_axis].idxmin()]
+        top_pct   = (top[y_axis] / total * 100) if total > 0 else 0
+        gap_pct   = ((top[y_axis] - bottom[y_axis]) / avg * 100) if avg > 0 else 0
+        n_cats    = len(grouped)
+
+        templates = [
+            (f"<strong>{top[x_axis]}</strong> leads <em>{y_axis}</em> with "
+             f"<strong>{top[y_axis]:,.2f}</strong> ({top_pct:.1f}% of the total {total:,.2f}), "
+             f"well above the {n_cats}-category average of {avg:,.2f}. "
+             f"<strong>{bottom[x_axis]}</strong> sits at the bottom ({bottom[y_axis]:,.2f}), "
+             f"representing a {gap_pct:.0f}% performance gap — a prime candidate for strategic review."),
+
+            (f"Across {n_cats} <em>{x_axis}</em> categories, total <em>{y_axis}</em> reached "
+             f"<strong>{total:,.2f}</strong>. The stand-out performer is "
+             f"<strong>{top[x_axis]}</strong> at {top[y_axis]:,.2f}, "
+             f"while <strong>{bottom[x_axis]}</strong> trails at {bottom[y_axis]:,.2f}. "
+             f"Closing this {gap_pct:.0f}% gap could materially lift overall results."),
+        ]
+        narrative = random.choice(templates)
+        return jsonify({'narrative': narrative})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ─── Global Search ─────────────────────────────────────────────────────────────
+@app.route('/search')
+@login_required
+def global_search():
+    q = (request.args.get('q') or '').strip().lower()
+    if len(q) < 2:
+        return jsonify({'results': []})
+
+    results = []
+
+    # Projects
+    for p in Project.query.filter_by(user_id=current_user.id).all():
+        if q in p.name.lower():
+            results.append({'type': 'Project', 'name': p.name,
+                            'url': f'/project/load/{p.id}', 'icon': 'fa-folder-open'})
+
+    # Columns in active dataframe
+    df_json = session.get('dataframe')
+    if df_json:
+        try:
+            df = pd.read_json(df_json)
+            for col in df.columns:
+                if q in col.lower():
+                    results.append({'type': 'Column', 'name': col,
+                                    'url': '/chart-builder', 'icon': 'fa-table-columns'})
+        except Exception:
+            pass
+
+    return jsonify({'results': results[:12]})
 
 
 # --- Main Execution ---

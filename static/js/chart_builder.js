@@ -1,140 +1,455 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const chartTypeSelect = document.getElementById('chartType');
-    if (!chartTypeSelect) {
-        return; // Stop if the element for the chart builder page doesn't exist
+/* ──────────────────────────────────────────────────────────
+   chart_builder.js  –  Primary Chart Builder Logic
+   ────────────────────────────────────────────────────────── */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ── Element references ─────────────────────────────────
+    const createChartBtn   = document.getElementById('createChartBtn');
+    const saveProjectBtn   = document.getElementById('saveProjectBtn');
+    const exportPdfBtn     = document.getElementById('exportPdfBtn');
+    const pdfSpinner       = document.getElementById('pdfSpinner');
+    const getAiInsightsBtn = document.getElementById('getAiInsightsBtn');
+    const forecastBtn      = document.getElementById('forecastBtn');
+    const addToStoryBtn    = document.getElementById('addToStoryBtn');
+    const clearFilterBtn   = document.getElementById('clearFilterBtn');
+
+    if (!createChartBtn) return;  // Not on chart builder page
+
+    const CHART_COLORS = [
+        'rgba(79,70,229,.8)',  'rgba(54,162,235,.8)',
+        'rgba(255,206,86,.8)', 'rgba(75,192,192,.8)',
+        'rgba(153,102,255,.8)','rgba(255,159,64,.8)',
+        'rgba(255,99,132,.8)', 'rgba(107,33,168,.8)',
+    ];
+
+    let myChart  = null;
+    let myChart2 = null;
+    let lastChartConfig = {};
+
+    // ── Helpers ────────────────────────────────────────────
+    function populateInsights(insights) {
+        const table = document.getElementById('insightsTable');
+        if (!table) return;
+        table.innerHTML = '';
+        const tbody = document.createElement('tbody');
+        for (const [k, v] of Object.entries(insights)) {
+            const row = tbody.insertRow();
+            row.insertCell().innerHTML = `<strong>${k}</strong>`;
+            row.insertCell().textContent = v;
+        }
+        table.appendChild(tbody);
     }
 
-    // This list maps user-friendly labels to the specific values your backend expects.
-    const allChartTypes = [
-        { value: 'bar', label: 'Bar Chart' },
-        { value: 'line', label: 'Line Chart' },
-        { value: 'pie', label: 'Pie (Donut) Chart' },
-        { value: 'doughnut', label: 'Doughnut Chart' },
-        { value: 'scatter', label: 'Scatter Plot' },
-        { value: 'table', label: 'Table' },
-        { value: 'treemap', label: 'Treemap' },
-        // Add any other charts from your complete list here
-        // e.g., { value: 'heatmap', label: 'Heatmap' }
-    ].sort((a, b) => a.label.localeCompare(b.label)); // Alphabetize the list
+    // ── Executive Narrative ────────────────────────────────
+    function fetchExecutiveNarrative(config) {
+        const card = document.getElementById('execNarrativeCard');
+        const text = document.getElementById('execNarrativeText');
+        if (!card || !text) return;
 
-    const RECENTLY_USED_KEY = 'Etlytix_recently_used_charts';
-    const MAX_RECENT = 5;
+        text.innerHTML = '<span class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Generating executive summary…</span>';
+        card.style.display = 'block';
 
-    const getRecentlyUsed = () => JSON.parse(localStorage.getItem(RECENTLY_USED_KEY)) || [];
-
-    const addRecentlyUsed = (chart) => {
-        let recent = getRecentlyUsed().filter(c => c.value !== chart.value);
-        recent.unshift(chart);
-        if (recent.length > MAX_RECENT) recent.pop();
-        localStorage.setItem(RECENTLY_USED_KEY, JSON.stringify(recent));
-    };
-
-    // Initialize Choices.js
-    const choices = new Choices(chartTypeSelect, {
-        searchEnabled: true,
-        itemSelectText: 'Select',
-        shouldSort: false,
-    });
-
-    const populateChartDropdown = () => {
-        choices.clearStore();
-        const recentlyUsed = getRecentlyUsed();
-        const choiceGroups = [];
-
-        if (recentlyUsed.length > 0) {
-            choiceGroups.push({
-                label: 'Recently Used',
-                disabled: true,
-                choices: recentlyUsed
-            });
-        }
-        choiceGroups.push({
-            label: 'All Charts',
-            disabled: true,
-            choices: allChartTypes
+        fetch('/executive-narrative', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config),
+        })
+        .then(r => r.json())
+        .then(data => {
+            text.innerHTML = data.narrative || '<span class="text-danger">Could not generate narrative.</span>';
+        })
+        .catch(() => {
+            text.innerHTML = '<span class="text-danger">Failed to load narrative.</span>';
         });
-        choices.setChoices(choiceGroups, 'value', 'label', false);
-    };
+    }
 
-    populateChartDropdown();
+    // ── Primary Chart Generation ───────────────────────────
+    function generatePrimaryChart(isExport = false) {
+        return new Promise((resolve, reject) => {
+            const chartType = document.getElementById('chartType').value;
+            const xAxis     = document.getElementById('xAxis').value;
+            const yAxis     = document.getElementById('yAxis').value;
+            const animation = isExport ? { duration: 0 } : {};
 
-    // --- CHART GENERATION LOGIC (Moved from main.js) ---
-    const createChartBtn = document.getElementById('createChartBtn');
-    const xAxisSelect = document.getElementById('xAxis');
-    const yAxisSelect = document.getElementById('yAxis');
-    let myChart = null; // Variable to hold the chart instance
+            lastChartConfig = { chart_type: chartType, x_axis: xAxis, y_axis: yAxis };
 
-    createChartBtn.addEventListener('click', function() {
-        const selectedChartType = choices.getValue(true); // Get value from Choices.js
-        const xAxis = xAxisSelect.value;
-        const yAxis = yAxisSelect.value;
+            fetch('/get-chart-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(lastChartConfig),
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { alert('Error: ' + data.error); return reject(data.error); }
 
-        if (!selectedChartType || !xAxis || !yAxis) {
-            alert('Please select a chart type, X-Axis, and Y-Axis.');
-            return;
-        }
-        
-        // Find the selected chart object to add to "Recently Used"
-        const selectedChartObject = allChartTypes.find(c => c.value === selectedChartType);
-        if(selectedChartObject) {
-           addRecentlyUsed(selectedChartObject);
-           populateChartDropdown(); // Refresh dropdown to show recent item
-        }
+                populateInsights(data.insights);
 
-        const chartConfig = {
-            chart_type: selectedChartType,
-            x_axis: xAxis,
-            y_axis: yAxis
-        };
+                // Update chart title
+                const titleEl = document.getElementById('chartTitle');
+                if (titleEl) titleEl.textContent = `${yAxis} by ${xAxis}`;
 
-        // Fetch data and render chart
+                // Enable AI insights button
+                if (getAiInsightsBtn) getAiInsightsBtn.disabled = false;
+
+                // ── Handle special types ──────────────────
+                if (chartType === 'table') {
+                    document.getElementById('table-container').style.display = 'block';
+                    document.getElementById('table-display-area').innerHTML = data.chart_data;
+                    document.getElementById('chart-container').style.display = 'none';
+                    resolve();
+                    return;
+                } else {
+                    document.getElementById('table-container').style.display = 'none';
+                    document.getElementById('chart-container').style.display = 'block';
+                }
+
+                // ── Canvas chart ──────────────────────────
+                const ctx = document.getElementById('myChart').getContext('2d');
+                if (myChart)  { myChart.destroy();  myChart  = null; }
+                if (myChart2) { myChart2.destroy(); myChart2 = null; }
+                const t2Title = document.getElementById('chart2-title');
+                if (t2Title) t2Title.textContent = 'Click any bar, slice, or data point to drill down here.';
+                if (clearFilterBtn) clearFilterBtn.classList.add('d-none');
+
+                let chartData, chartOptions;
+
+                if (chartType === 'scatter') {
+                    chartData = {
+                        datasets: [{
+                            label: `${yAxis} vs ${xAxis}`,
+                            data: data.chart_data,
+                            backgroundColor: 'rgba(79,70,229,.8)',
+                        }]
+                    };
+                    chartOptions = {
+                        animation,
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { type: 'linear', position: 'bottom', title: { display: true, text: xAxis } },
+                            y: { title: { display: true, text: yAxis } }
+                        }
+                    };
+                } else {
+                    const isPieStyle = (chartType === 'pie' || chartType === 'doughnut');
+                    const bgColors   = (chartType === 'bar' || isPieStyle)
+                        ? data.chart_data.map((_, i) => CHART_COLORS[i % CHART_COLORS.length])
+                        : 'rgba(79,70,229,.8)';
+
+                    chartData = {
+                        labels: data.chart_data.map(d => d.key),
+                        datasets: [{
+                            label: yAxis,
+                            data: data.chart_data.map(d => d.value),
+                            backgroundColor: bgColors,
+                            borderColor: 'rgba(255,255,255,.7)',
+                            borderWidth: chartType === 'line' ? 2.5 : 1,
+                        }]
+                    };
+                    chartOptions = {
+                        animation,
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        onClick: (_evt, elements) => {
+                            if (elements.length > 0) {
+                                const idx   = elements[0].index;
+                                const label = myChart.data.labels[idx];
+                                generateFilteredChart(xAxis, label);
+                                if (clearFilterBtn) clearFilterBtn.classList.remove('d-none');
+                            }
+                        },
+                        scales: (chartType === 'bar' || chartType === 'line')
+                            ? { y: { beginAtZero: true } } : {}
+                    };
+                }
+
+                myChart = new Chart(ctx, { type: chartType, data: chartData, options: chartOptions });
+
+                // Executive narrative (skip for table/treemap)
+                if (!['table', 'treemap', 'scatter'].includes(chartType)) {
+                    fetchExecutiveNarrative({ x_axis: xAxis, y_axis: yAxis, chart_type: chartType });
+                }
+
+                setTimeout(resolve, 500);
+            })
+            .catch(reject);
+        });
+    }
+
+    // ── Cross-filter drill-down ────────────────────────────
+    function generateFilteredChart(filterColumn, filterValue) {
+        const secondaryXAxis  = document.getElementById('secondaryXAxis').value;
+        const secondaryChartType = document.getElementById('secondaryChartType').value;
+        const yAxis = document.getElementById('yAxis').value;
+
+        const t2Title = document.getElementById('chart2-title');
+        if (t2Title) t2Title.textContent = `Drill-Down: ${filterColumn} = "${filterValue}"`;
+
         fetch('/get-chart-data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(chartConfig)
+            body: JSON.stringify({
+                x_axis: secondaryXAxis,
+                y_axis: yAxis,
+                filter_col: filterColumn,
+                filter_val: filterValue,
+                chart_type: secondaryChartType,
+            }),
         })
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            if (data.error) {
-                console.error('Chart Error:', data.error);
-                alert(`Error generating chart: ${data.error}`);
-                return;
-            }
+            if (data.error) { alert('Drill-Down Error: ' + data.error); return; }
+            const ctx2 = document.getElementById('myChart2').getContext('2d');
+            if (myChart2) myChart2.destroy();
 
-            const chartContainer = document.getElementById('chart-container');
-            const canvas = document.getElementById('myChart');
-            
-            // Destroy previous chart instance if it exists
-            if (myChart) {
-                myChart.destroy();
-            }
-
-            // Create the new chart
-            myChart = new Chart(canvas, {
-                type: selectedChartType, // 'bar', 'line', etc.
+            const bgColors = data.chart_data.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
+            myChart2 = new Chart(ctx2, {
+                type: secondaryChartType,
                 data: {
-                    labels: data.chart_data.map(item => item.key),
+                    labels: data.chart_data.map(d => d.key),
                     datasets: [{
-                        label: `${yAxis} by ${xAxis}`,
-                        data: data.chart_data.map(item => item.value),
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
+                        label: `${yAxis} for "${filterValue}"`,
+                        data: data.chart_data.map(d => d.value),
+                        backgroundColor: bgColors,
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    plugins: { legend: { display: secondaryChartType !== 'pie' } }
                 }
             });
         })
-        .catch(error => {
-            console.error('Primary Chart Error:', error);
+        .catch(err => console.error('Drill-down error:', err));
+    }
+
+    // ── Forecast ───────────────────────────────────────────
+    function applyForecast() {
+        if (!myChart || myChart.config.type !== 'line') {
+            alert('Forecasting only works on the primary Line Chart.');
+            return;
+        }
+        const periods = document.getElementById('forecastPeriods').value;
+        const xAxis   = document.getElementById('xAxis').value;
+        const yAxis   = document.getElementById('yAxis').value;
+
+        fetch('/get-forecast-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ x_axis: xAxis, y_axis: yAxis, periods }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert('Forecast error: ' + data.error); return; }
+            if (myChart.data.datasets.length > 1) myChart.data.datasets.pop();
+            myChart.data.datasets.push({
+                label: 'Forecast',
+                data: data.values,
+                borderColor: 'red',
+                borderDash: [5, 5],
+                fill: false,
+                pointRadius: 4,
+                backgroundColor: 'red',
+            });
+            myChart.data.labels.push(...data.labels);
+            myChart.update();
         });
-    });
+    }
+
+    // ── Save Project ───────────────────────────────────────
+    function saveProject() {
+        const name = prompt('Enter a name for your project:');
+        if (!name) return;
+        fetch('/project/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, action: 'check' }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.exists) {
+                showReplaceModal(name);
+            } else {
+                performSave(name, 'save_new');
+            }
+        });
+    }
+
+    function showReplaceModal(name) {
+        const modal = document.getElementById('replace-modal');
+        document.getElementById('modal-text').textContent =
+            `A project named "${name}" already exists. Replace it?`;
+        modal.style.display = 'flex';
+        document.getElementById('modal-yes').onclick = () => { modal.style.display = 'none'; performSave(name, 'overwrite'); };
+        document.getElementById('modal-no').onclick  = () => { modal.style.display = 'none'; performSave(name, 'save_new'); };
+    }
+
+    function performSave(name, action) {
+        fetch('/project/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, action }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                window.location.replace('/dashboard');
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        });
+    }
+
+    // ── Data Story ─────────────────────────────────────────
+    function saveCurrentViewToStory() {
+        const title    = prompt('Title for this story point:');
+        if (!title) return;
+        const insights = prompt('Notes or insights for this view:');
+        const config   = {
+            chartType: document.getElementById('chartType').value,
+            xAxis:     document.getElementById('xAxis').value,
+            yAxis:     document.getElementById('yAxis').value,
+        };
+        fetch('/story/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, insights, config }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const li = document.createElement('li');
+                li.className = 'list-group-item list-group-item-action';
+                li.style.cursor = 'pointer';
+                li.innerHTML = `<i class="fas fa-bookmark me-2 text-primary"></i>${title}`;
+                document.getElementById('storyList').appendChild(li);
+            }
+        });
+    }
+
+    // ── AI Insights ────────────────────────────────────────
+    function fetchAiInsights() {
+        const container = document.getElementById('aiInsightsContainer');
+        const content   = document.getElementById('aiInsightsContent');
+        if (!container || !content) return;
+
+        container.style.display = 'block';
+        content.innerHTML = '<span class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Analysing…</span>';
+
+        fetch('/ai-insights', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chart_config: lastChartConfig }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            content.innerHTML = data.insights
+                ? `<i class="fas fa-robot me-1 text-primary"></i>${data.insights}`
+                : '<span class="text-danger">Could not generate insights.</span>';
+        });
+    }
+
+    // ── Ask My Data ────────────────────────────────────────
+    const askDataBtn   = document.getElementById('askDataBtn');
+    const askDataInput = document.getElementById('askDataInput');
+    if (askDataBtn && askDataInput) {
+        askDataBtn.addEventListener('click', () => {
+            const q = askDataInput.value.trim();
+            if (!q) { alert('Please enter a question.'); return; }
+
+            const spinner = document.getElementById('askSpinner');
+            askDataBtn.disabled = true;
+            if (spinner) spinner.classList.remove('d-none');
+
+            fetch('/ask-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: q }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { alert('Error: ' + data.error); return; }
+
+                const container = document.getElementById('kpiCardContainer');
+                const card      = document.getElementById('kpiCard');
+                document.getElementById('kpiTitle').textContent    = data.title;
+                document.getElementById('kpiValue').textContent    = data.value;
+                document.getElementById('kpiLabel').textContent    = data.label;
+                document.getElementById('kpiSubtitle').textContent = data.subtitle;
+                document.getElementById('kpiIcon').className = `fas ${data.icon}`;
+                card.style.setProperty('--kpi-color', data.color || '#3b82f6');
+                container.style.display = 'block';
+                container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            })
+            .finally(() => {
+                askDataBtn.disabled = false;
+                if (spinner) spinner.classList.add('d-none');
+            });
+        });
+
+        askDataInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') askDataBtn.click();
+        });
+    }
+
+    // ── PDF Export ─────────────────────────────────────────
+    if (exportPdfBtn) {
+        exportPdfBtn.addEventListener('click', () => {
+            pdfSpinner && pdfSpinner.classList.remove('d-none');
+            exportPdfBtn.disabled = true;
+
+            generatePrimaryChart(true).then(() => {
+                const insights = document.getElementById('aiInsightsContent')?.textContent || '';
+                const xAxis    = document.getElementById('xAxis').value;
+                const yAxis    = document.getElementById('yAxis').value;
+
+                fetch('/export/pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chart_config:  { x_axis: xAxis, y_axis: yAxis },
+                        insights:      insights || `${yAxis} by ${xAxis}`,
+                        title:         `${yAxis} by ${xAxis} Report`,
+                    }),
+                })
+                .then(r => {
+                    if (!r.ok) throw new Error('PDF export failed');
+                    return r.blob();
+                })
+                .then(blob => {
+                    const url  = window.URL.createObjectURL(blob);
+                    const a    = document.createElement('a');
+                    a.href     = url;
+                    a.download = 'Report.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                })
+                .catch(e => alert('Export failed: ' + e))
+                .finally(() => {
+                    pdfSpinner && pdfSpinner.classList.add('d-none');
+                    exportPdfBtn.disabled = false;
+                });
+            });
+        });
+    }
+
+    // ── Wire up buttons ─────────────────────────────────────
+    createChartBtn.addEventListener('click', () => generatePrimaryChart());
+    if (saveProjectBtn)   saveProjectBtn.addEventListener('click', saveProject);
+    if (forecastBtn)      forecastBtn.addEventListener('click', applyForecast);
+    if (addToStoryBtn)    addToStoryBtn.addEventListener('click', saveCurrentViewToStory);
+    if (getAiInsightsBtn) getAiInsightsBtn.addEventListener('click', fetchAiInsights);
+    if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', () => {
+            if (myChart2) { myChart2.destroy(); myChart2 = null; }
+            const t2 = document.getElementById('chart2-title');
+            if (t2) t2.textContent = 'Click any bar, slice, or data point to drill down here.';
+            clearFilterBtn.classList.add('d-none');
+        });
+    }
+
+    // ── Listen for story-chart reload event ────────────────
+    document.addEventListener('loadStoryChart', () => generatePrimaryChart());
 });

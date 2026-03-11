@@ -4,7 +4,23 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Prepare Your Data</h2>
-        <a href="{{ url_for('chart_builder') }}" class="btn btn-success">Finalize & Proceed to Chart Builder <i class="fas fa-arrow-right"></i></a>
+        <div class="d-flex gap-2">
+            <button id="smartCleanBtn" class="btn btn-success">
+                <span id="cleanSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                <i class="fas fa-wand-magic-sparkles me-1"></i> Smart Clean
+            </button>
+            <a href="{{ url_for('chart_builder') }}" class="btn btn-primary">
+                Finalize &amp; Go to Chart Builder <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Smart Clean Report Panel -->
+    <div id="cleanReportPanel" class="card mb-4" style="display:none; border-left:4px solid #10b981;">
+        <div class="card-body">
+            <h6 class="card-title text-success"><i class="fas fa-circle-check me-1"></i> Smart Clean Report</h6>
+            <ul id="cleanReportList" class="mb-0 ps-3 small"></ul>
+        </div>
     </div>
 
     <div class="row mb-4">
@@ -21,6 +37,25 @@
                                 {% endfor %}
                             </select>
                             <button type="submit" class="btn btn-warning">Remove</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Fill Missing Values (NaN)</h5>
+                    <form action="{{ url_for('handle_data_action') }}" method="POST">
+                        <input type="hidden" name="action" value="fill_na">
+                        <div class="input-group">
+                            <select name="column_to_fill" class="form-select">
+                                {% for col in columns %}
+                                <option value="{{ col }}">{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="text" name="fill_value" class="form-control" placeholder="Fill with..." value="0" required>
+                            <button type="submit" class="btn btn-info">Fill</button>
                         </div>
                     </form>
                 </div>
@@ -68,34 +103,44 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Fill Missing Values (NaN)</h5>
-                    <form action="{{ url_for('handle_data_action') }}" method="POST">
-                        <input type="hidden" name="action" value="fill_na">
-                        <div class="input-group">
-                             <select name="column_to_fill" class="form-select">
-                                {% for col in columns %}
-                                <option value="{{ col }}">{{ col }}</option>
-                                {% endfor %}
-                            </select>
-                            <input type="text" name="fill_value" class="form-control" placeholder="Fill with..." value="0" required>
-                            <button type="submit" class="btn btn-info">Fill</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div class="card">
-        <div class="card-header">
-            Data Preview
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Data Preview</span>
+            <small class="text-muted">Showing up to 50 rows</small>
         </div>
-        <div class="card-body table-responsive">
+        <div class="card-body table-responsive" id="dataPreviewWrapper">
             {{ dataframe_html|safe }}
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('smartCleanBtn').addEventListener('click', function () {
+    const btn     = this;
+    const spinner = document.getElementById('cleanSpinner');
+    btn.disabled  = true;
+    spinner.classList.remove('d-none');
+
+    fetch('/smart-clean', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert('Error: ' + data.error); return; }
+
+            // Render report
+            const panel = document.getElementById('cleanReportPanel');
+            const list  = document.getElementById('cleanReportList');
+            list.innerHTML = data.report.map(r => `<li>${r}</li>`).join('');
+            panel.style.display = 'block';
+
+            // Replace table
+            if (data.table_html) {
+                document.getElementById('dataPreviewWrapper').innerHTML = data.table_html;
+            }
+        })
+        .catch(e => alert('Smart Clean failed: ' + e))
+        .finally(() => { btn.disabled = false; spinner.classList.add('d-none'); });
+});
+</script>
 {% endblock %}
