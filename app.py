@@ -157,7 +157,7 @@ def export_pdf():
     if not df_json:
         return jsonify({'error': 'No data in session to generate report.'}), 400
     
-    df = pd.read_json(df_json)
+    df = pd.read_json(io.StringIO(df_json))
 
     # --- Recreate the data table for the report ---
     try:
@@ -444,7 +444,7 @@ def get_forecast_data():
     periods = int(config.get('periods', 5))
 
     try:
-        df = pd.read_json(df_json)
+        df = pd.read_json(io.StringIO(df_json))
         df[y_axis] = pd.to_numeric(df[y_axis], errors='coerce').fillna(0)
         
         # Aggregate the data first, similar to get_chart_data
@@ -610,7 +610,7 @@ def model_data():
     table_names = list(uploaded_data.keys())
     table_columns = {}
     for name, df_json in uploaded_data.items():
-        df = pd.read_json(df_json)
+        df = pd.read_json(io.StringIO(df_json))
         table_columns[name] = df.columns.tolist()
 
     auto_suggestions = detect_join_keys(table_columns)
@@ -634,8 +634,8 @@ def merge_data():
     join_type = request.form.get('join_type')
 
     # Load dataframes from session
-    df_left = pd.read_json(uploaded_data[left_table_name])
-    df_right = pd.read_json(uploaded_data[right_table_name])
+    df_left = pd.read_json(io.StringIO(uploaded_data[left_table_name]))
+    df_right = pd.read_json(io.StringIO(uploaded_data[right_table_name]))
 
     try:
         df_left[left_key] = df_left[left_key].astype(str)
@@ -669,7 +669,7 @@ def prepare_data():
         return redirect(url_for('upload'))
     
     try:
-        df = pd.read_json(df_json)
+        df = pd.read_json(io.StringIO(df_json))
         
         # Get column lists for the template's forms
         columns = df.columns.tolist()
@@ -692,7 +692,7 @@ def handle_data_action():
     if not df_json:
         return redirect(url_for('upload'))
     
-    df = pd.read_json(df_json)
+    df = pd.read_json(io.StringIO(df_json))
     action = request.form.get('action')
 
     if action == 'remove_column':
@@ -761,7 +761,7 @@ def get_ai_insights():
     if not df_json:
         return jsonify({'error': 'No data in session to analyze.'}), 400
     
-    df = pd.read_json(df_json)
+    df = pd.read_json(io.StringIO(df_json))
 
     # --- This is where you would normally prepare data and call an LLM API ---
     # For now, we will generate a simulated, dynamic response.
@@ -796,7 +796,7 @@ def chart_builder():
         return redirect(url_for('upload'))
 
     # Load the dataframe and get all column lists needed for the dropdowns
-    df = pd.read_json(df_json)
+    df = pd.read_json(io.StringIO(df_json))
     columns = df.columns.tolist()
     numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
     categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
@@ -864,7 +864,7 @@ def get_chart_data():
     if not df_json:
         return jsonify({'error': 'No data found in session. Please upload a file.'}), 400
     
-    df = pd.read_json(df_json)
+    df = pd.read_json(io.StringIO(df_json))
     chart_config = request.get_json()
     x_axis      = chart_config.get('x_axis')
     y_axis      = chart_config.get('y_axis')
@@ -1001,7 +1001,7 @@ def smart_clean():
     if not df_json:
         return jsonify({'error': 'No data in session.'}), 400
 
-    df = pd.read_json(df_json)
+    df = pd.read_json(io.StringIO(df_json))
     report = []
 
     # 1. Remove duplicates
@@ -1076,7 +1076,7 @@ def ask_data():
     if not df_json:
         return jsonify({'error': 'No data in session.'}), 400
 
-    df = pd.read_json(df_json)
+    df = pd.read_json(io.StringIO(df_json))
     data = request.get_json()
     query = (data.get('query') or '').lower().strip()
 
@@ -1165,7 +1165,7 @@ def executive_narrative():
     if not df_json:
         return jsonify({'error': 'No data.'}), 400
 
-    df   = pd.read_json(df_json)
+    df   = pd.read_json(io.StringIO(df_json))
     data = request.get_json()
     x_axis     = data.get('x_axis')
     y_axis     = data.get('y_axis')
@@ -1226,7 +1226,7 @@ def global_search():
     df_json = session.get('dataframe')
     if df_json:
         try:
-            df = pd.read_json(df_json)
+            df = pd.read_json(io.StringIO(df_json))
             for col in df.columns:
                 if q in col.lower():
                     results.append({'type': 'Column', 'name': col,
@@ -1244,7 +1244,7 @@ def dashboard_builder_view():
     if not df_json:
         flash('Please upload a data file first to use the Dashboard Builder.', 'warning')
         return redirect(url_for('upload'))
-    df = pd.read_json(df_json)
+    df = pd.read_json(io.StringIO(df_json))
     columns = df.columns.tolist()
     numeric_cols = df.select_dtypes(include='number').columns.tolist()
     categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
