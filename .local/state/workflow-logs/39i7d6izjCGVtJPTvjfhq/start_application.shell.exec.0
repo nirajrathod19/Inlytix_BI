@@ -1,0 +1,89 @@
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.78.226:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 886-049-760
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:47:28] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:28] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:28] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:28] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:28] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:28] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:34] "[32mGET /upload HTTP/1.1[0m" 302 -
+127.0.0.1 - - [11/Mar/2026 17:47:34] "GET /login?next=/upload HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:38] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:38] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:38] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:38] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:38] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:47:39] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [11/Mar/2026 17:48:32] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:32] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:32] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:32] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:32] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:32] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:35] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:36] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:36] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:36] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:36] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:36] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:54] "[32mPOST /login HTTP/1.1[0m" 302 -
+127.0.0.1 - - [11/Mar/2026 17:48:54] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:55] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:55] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:55] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:55] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:59] "GET /upload HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:59] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:59] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:59] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:48:59] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:06] "[32mPOST /upload HTTP/1.1[0m" 302 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:49:06] "[32mGET /prepare HTTP/1.1[0m" 302 -
+127.0.0.1 - - [11/Mar/2026 17:49:07] "GET /upload HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:07] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:07] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:07] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:07] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:41] "[32mPOST /upload HTTP/1.1[0m" 302 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:49:41] "[32mGET /prepare HTTP/1.1[0m" 302 -
+127.0.0.1 - - [11/Mar/2026 17:49:41] "GET /upload HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:41] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:41] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:41] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:49:41] "GET /static/img/Logo.png HTTP/1.1" 200 -
+ * Detected change in '/home/runner/workspace/app.py', reloading
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 886-049-760

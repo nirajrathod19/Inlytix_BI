@@ -1,0 +1,123 @@
+WARNING: SUPABASE_DATABASE_URL has unexpected format, falling back to SQLite.
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.78.226:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format, falling back to SQLite.
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 312-846-729
+127.0.0.1 - - [11/Mar/2026 17:22:44] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:44] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:44] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:44] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:44] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:47] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:47] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:47] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:47] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:47] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:48] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:22:48] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [11/Mar/2026 17:23:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:23:08] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:23:08] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:23:08] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:23:08] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:23:08] "GET /static/img/Logo.png HTTP/1.1" 200 -
+ * Detected change in '/home/runner/workspace/app.py', reloading
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 312-846-729
+127.0.0.1 - - [11/Mar/2026 17:26:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:26:49] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:26:49] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:26:49] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:26:49] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:07] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:07] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:07] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:07] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:08] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:10] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:11] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:11] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:11] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:11] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:22] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:22] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:22] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:22] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:22] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:25] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:25] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:25] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:25] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:25] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:41] "POST /register HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:41] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:41] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:41] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:41] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:48] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:48] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:48] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:48] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:48] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:55] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:55] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:55] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:55] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:28:55] "GET /static/img/Logo.png HTTP/1.1" 200 -
+ * Detected change in '/home/runner/workspace/app.py', reloading
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 312-846-729
+ * Detected change in '/home/runner/workspace/app.py', reloading
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 312-846-729
+127.0.0.1 - - [11/Mar/2026 17:35:36] "POST /login HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:35:36] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:35:36] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:35:36] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:35:36] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+ * Detected change in '/home/runner/workspace/app.py', reloading
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 312-846-729

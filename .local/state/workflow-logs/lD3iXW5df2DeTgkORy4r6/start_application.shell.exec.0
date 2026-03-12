@@ -1,0 +1,44 @@
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.116.34:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 799-736-892
+/home/runner/workspace/app.py:114: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [12/Mar/2026 09:21:40] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:40] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:40] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:40] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:40] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:45] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:45] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:45] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:45] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:45] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:46] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:21:46] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [12/Mar/2026 09:22:02] "[32mGET /dashboard-builder HTTP/1.1[0m" 302 -
+127.0.0.1 - - [12/Mar/2026 09:22:02] "GET /login?next=/dashboard-builder HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:22:02] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:22:02] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:22:02] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:22:02] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:22:02] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [12/Mar/2026 09:22:13] "POST /login HTTP/1.1" 200 -

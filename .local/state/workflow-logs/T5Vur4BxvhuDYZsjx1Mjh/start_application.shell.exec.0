@@ -1,0 +1,10 @@
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Serving Flask app 'app'
+ * Debug mode: on
+Address already in use
+Port 5000 is in use by another program. Either identify and stop that program, or start the server with a different port.

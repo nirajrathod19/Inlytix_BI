@@ -1,0 +1,289 @@
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.78.226:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 110-862-633
+127.0.0.1 - - [11/Mar/2026 17:52:52] "GET / HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:52:52] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:52] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:52] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:52] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:52] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:52] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:55] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:55] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:55] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:55] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:56] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:52:56] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [11/Mar/2026 17:53:35] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:35] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:35] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:35] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:35] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:35] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:39] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:39] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:39] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:39] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:39] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:53:39] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:01] "[32mPOST /login HTTP/1.1[0m" 302 -
+127.0.0.1 - - [11/Mar/2026 17:54:01] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:01] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:01] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:01] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:02] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:04] "GET /upload HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:04] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:04] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:04] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:04] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:13] "[32mPOST /upload HTTP/1.1[0m" 302 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:54:13] "GET /prepare HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:13] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:14] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:14] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:14] "GET /static/img/Logo.png HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+/home/runner/workspace/app.py:1028: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  for col in df.select_dtypes(include='object').columns:
+127.0.0.1 - - [11/Mar/2026 17:54:23] "POST /smart-clean HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+/home/runner/workspace/app.py:802: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:54:37] "GET /chart-builder HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:37] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:37] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:37] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:38] "GET /static/img/Logo.png HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+/home/runner/workspace/app.py:802: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:54:53] "GET /chart-builder HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:53] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:53] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:53] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:54] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:54:54] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:55:12] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:55:12] "POST /executive-narrative HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:55:21] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:55:21] "POST /executive-narrative HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:55:32] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:55:32] "POST /executive-narrative HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:09] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:09] "POST /executive-narrative HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:15] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:22] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:23] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:24] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:28] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:37] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+/home/runner/workspace/app.py:802: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:56:40] "GET /chart-builder HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:56:40] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:56:40] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:56:40] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:56:40] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:47] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:47] "POST /executive-narrative HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:56] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:56:56] "POST /executive-narrative HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:57:02] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:57:02] "POST /executive-narrative HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:57:07] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:57:07] "POST /executive-narrative HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:57:12] "POST /get-chart-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:57:13] "POST /executive-narrative HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+/home/runner/workspace/app.py:1250: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:57:36] "GET /dashboard-builder HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:57:37] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:57:37] "GET /static/js/dashboard_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:57:37] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:57:37] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:57:37] "GET /static/img/Logo.png HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+/home/runner/workspace/app.py:802: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:57:50] "GET /chart-builder HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:57:51] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:57:51] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:57:51] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:57:51] "GET /static/img/Logo.png HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:58:00] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:00] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:00] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:00] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:00] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+/home/runner/workspace/app.py:1250: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:58:04] "GET /dashboard-builder HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:04] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:04] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:04] "GET /static/js/dashboard_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:04] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:04] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+/home/runner/workspace/app.py:802: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:58:24] "GET /chart-builder HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:24] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:24] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:24] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:24] "GET /static/img/Logo.png HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:58:30] "GET /upload HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:30] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:30] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:30] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:30] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:32] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:32] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:32] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:32] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:32] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+/home/runner/workspace/app.py:802: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:58:33] "GET /chart-builder HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:33] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:33] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:33] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:33] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+/home/runner/workspace/app.py:1250: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:58:35] "GET /dashboard-builder HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:35] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:35] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:35] "GET /static/js/dashboard_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:35] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:35] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 17:58:36] "[32mGET /logout HTTP/1.1[0m" 302 -
+127.0.0.1 - - [11/Mar/2026 17:58:36] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:36] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:36] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:36] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:36] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:39] "[32mGET /tutorial/chart HTTP/1.1[0m" 302 -
+127.0.0.1 - - [11/Mar/2026 17:58:39] "GET /login?next=/tutorial/chart HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:39] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:39] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:39] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:39] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:49] "[32mPOST /login?next=/tutorial/chart HTTP/1.1[0m" 302 -
+127.0.0.1 - - [11/Mar/2026 17:58:49] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:49] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:49] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:49] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:49] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:58:58] "GET /search?q=hjm, HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+/home/runner/workspace/app.py:1084: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  categorical_cols = df.select_dtypes(include='object').columns.tolist()
+127.0.0.1 - - [11/Mar/2026 17:59:31] "POST /ask-data HTTP/1.1" 200 -
+/home/runner/workspace/app.py:106: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+  return User.query.get(int(user_id))
+127.0.0.1 - - [11/Mar/2026 18:00:09] "GET /connect HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 18:00:09] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 18:00:09] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 18:00:09] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 18:00:09] "GET /static/img/Logo.png HTTP/1.1" 200 -

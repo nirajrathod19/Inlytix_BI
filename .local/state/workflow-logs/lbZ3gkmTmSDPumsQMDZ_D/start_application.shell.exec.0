@@ -1,0 +1,41 @@
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.78.226:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+WARNING: SUPABASE_DATABASE_URL has unexpected format (starts with: 'anhlloedxfkvyfhuikkd...'), falling back to SQLite.
+Tip: Supabase connection string should start with 'postgresql://' or 'postgres://'
+--- DIAGNOSTICS ---
+Project Base Directory: /home/runner/workspace
+Database URI is: sqlite:////home/runner/workspace/instance/users.db
+-------------------
+ * Debugger is active!
+ * Debugger PIN: 819-070-841
+127.0.0.1 - - [11/Mar/2026 17:38:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:38:53] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:38:53] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:38:53] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:38:53] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:38:53] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:10] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:15] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:15] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:15] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:15] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:15] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:15] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [11/Mar/2026 17:39:17] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:18] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:18] "GET /static/img/Logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:18] "GET /static/js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:18] "GET /static/js/chart_builder.js HTTP/1.1" 200 -
+127.0.0.1 - - [11/Mar/2026 17:39:18] "GET /static/img/Logo.png HTTP/1.1" 200 -
