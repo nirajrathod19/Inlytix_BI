@@ -26,8 +26,14 @@ A Flask-based business intelligence and data analytics web application. Users ca
   - Add Chart modal: all 11 chart types, aggregation, top-N, 6 color schemes
   - Cross-filtering across all tiles by clicking a segment
   - Edit, Duplicate, Remove per tile
-  - Save/Load dashboard state to browser localStorage
-  - Export dashboard to PDF
+  - Server-side Save / Load dashboards (Dashboard DB model, `/api/dashboard/*` routes)
+  - Named dashboards with "My Dashboards" panel and delete support
+  - Auto local-storage backup in addition to server save
+  - Export dashboard to PDF (html2canvas + jspdf)
+  - Bootstrap modal fix: initialized inside DOMContentLoaded (was timing out before Bootstrap loaded)
+  - Scatter/Bubble charts use correct `{x,y}` / `{x,y,r}` data from backend
+  - KPI chart type: full backend handler + styled card (Total / Avg / Max / Min)
+  - KPI card auto-sized to 3-column widget
 - **Global Search**: Navbar search across projects and dataset columns
 - **Project Save/Load**: Named projects with sidebar panel
 - **PDF Export**: Chart + data export via jsPDF + html2canvas

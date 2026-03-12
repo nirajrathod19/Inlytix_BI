@@ -97,8 +97,16 @@ class StoryPoint(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     insights = db.Column(db.Text, nullable=True)
-    chart_config = db.Column(db.Text, nullable=False) # Stores chart type, axes etc. as JSON
+    chart_config = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class Dashboard(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, default='My Dashboard')
+    config_json = db.Column(db.Text, nullable=False, default='[]')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    last_modified = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 @login_manager.user_loader
@@ -938,6 +946,27 @@ def get_chart_data():
                              "values": bubble_df[y_axis].tolist(),
                              "insights": {"Points": len(bubble_data)}}
 
+        elif chart_type == 'kpi':
+            col = y_axis if y_axis and y_axis in df.columns else (x_axis if x_axis and x_axis in df.columns else None)
+            if col:
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+                total   = float(df[col].sum())
+                avg_v   = float(df[col].mean())
+                max_v   = float(df[col].max())
+                min_v   = float(df[col].min())
+                count_v = int(df[col].count())
+            else:
+                total = avg_v = max_v = min_v = 0.0; count_v = 0
+            response_data = {
+                "labels": ['Total', 'Average', 'Max', 'Min'],
+                "values": [total, avg_v, max_v, min_v],
+                "kpi": {"total": total, "avg": avg_v, "max": max_v, "min": min_v,
+                        "count": count_v, "col": col or ''},
+                "chart_data": [],
+                "insights": {"Total": f"{total:,.2f}", "Average": f"{avg_v:,.2f}",
+                             "Max": f"{max_v:,.2f}", "Rows": str(count_v)},
+            }
+
         else:
             # Aggregated charts – bar, line, pie, doughnut, radar, polarArea, histogram
             if not x_axis or x_axis not in df.columns:
@@ -1235,6 +1264,49 @@ def global_search():
             pass
 
     return jsonify({'results': results[:12]})
+
+
+@app.route('/api/dashboard/save', methods=['POST'])
+@login_required
+def api_dashboard_save():
+    data = request.get_json()
+    name    = (data.get('name') or 'My Dashboard').strip()
+    config  = data.get('config', [])
+    dash_id = data.get('id')
+    if dash_id:
+        d = Dashboard.query.filter_by(id=int(dash_id), user_id=current_user.id).first()
+        if not d:
+            return jsonify({'error': 'Dashboard not found'}), 404
+        d.name         = name
+        d.config_json  = json.dumps(config)
+        d.last_modified = datetime.utcnow()
+    else:
+        d = Dashboard(name=name, config_json=json.dumps(config), user_id=current_user.id)
+        db.session.add(d)
+    db.session.commit()
+    return jsonify({'success': True, 'id': d.id, 'name': d.name})
+
+@app.route('/api/dashboard/list')
+@login_required
+def api_dashboard_list():
+    rows = Dashboard.query.filter_by(user_id=current_user.id)\
+                          .order_by(Dashboard.last_modified.desc()).all()
+    return jsonify([{'id': r.id, 'name': r.name,
+                     'modified': r.last_modified.strftime('%Y-%m-%d %H:%M')} for r in rows])
+
+@app.route('/api/dashboard/<int:dash_id>')
+@login_required
+def api_dashboard_get(dash_id):
+    d = Dashboard.query.filter_by(id=dash_id, user_id=current_user.id).first_or_404()
+    return jsonify({'id': d.id, 'name': d.name, 'config': json.loads(d.config_json)})
+
+@app.route('/api/dashboard/<int:dash_id>/delete', methods=['DELETE'])
+@login_required
+def api_dashboard_delete(dash_id):
+    d = Dashboard.query.filter_by(id=dash_id, user_id=current_user.id).first_or_404()
+    db.session.delete(d)
+    db.session.commit()
+    return jsonify({'success': True})
 
 
 @app.route('/dashboard-builder')

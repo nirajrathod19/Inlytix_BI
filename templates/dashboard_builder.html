@@ -2,31 +2,54 @@
 {% block title %}Dashboard Builder – Etlytix BI{% endblock %}
 
 {% block content %}
-<!-- Pass column data to JS -->
+<!-- Column metadata for JS -->
 <script>
-    window.DB_COLUMNS      = {{ columns | tojson }};
-    window.DB_NUMERIC      = {{ numeric_cols | tojson }};
-    window.DB_CATEGORICAL  = {{ categorical_cols | tojson }};
+    window.DB_COLUMNS     = {{ columns      | tojson }};
+    window.DB_NUMERIC     = {{ numeric_cols | tojson }};
+    window.DB_CATEGORICAL = {{ categorical_cols | tojson }};
 </script>
 
 <!-- Gridstack CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@8.4.0/dist/gridstack.min.css">
 
-<!-- Page Shell -->
+<!-- ── Page shell ──────────────────────────────────────────────── -->
 <div class="dbb-page">
 
     <!-- ── Toolbar ─────────────────────────────────────────────── -->
     <div class="dbb-toolbar d-flex align-items-center gap-2 flex-wrap">
-        <span class="fw-bold me-2"><i class="fas fa-table-columns me-1 text-primary"></i>Dashboard Builder</span>
+        <span class="fw-bold me-1 text-nowrap">
+            <i class="fas fa-table-columns me-1 text-primary"></i>Dashboard Builder
+        </span>
+
+        <!-- Dashboard name pill -->
+        <span class="badge bg-light text-dark border px-2 py-1 small">
+            <i class="fas fa-layer-group me-1 text-primary"></i>
+            <span id="dbbCurrentName">Unsaved</span>
+        </span>
+
         <button class="btn btn-primary btn-sm" id="dbbAddChart">
             <i class="fas fa-plus me-1"></i>Add Chart
         </button>
-        <button class="btn btn-outline-secondary btn-sm" id="dbbSave">
+        <button class="btn btn-success btn-sm" id="dbbSave">
             <i class="fas fa-floppy-disk me-1"></i>Save
         </button>
-        <button class="btn btn-outline-secondary btn-sm" id="dbbLoad">
-            <i class="fas fa-folder-open me-1"></i>Load
+        <button class="btn btn-outline-success btn-sm" id="dbbSaveAs">
+            <i class="fas fa-copy me-1"></i>Save As
         </button>
+        <div class="position-relative">
+            <button class="btn btn-outline-secondary btn-sm" id="dbbLoad">
+                <i class="fas fa-folder-open me-1"></i>My Dashboards
+            </button>
+            <!-- Dropdown saved list -->
+            <div id="dbbLoadPanel" class="dbb-load-panel d-none">
+                <div class="fw-semibold small mb-2 text-primary">
+                    <i class="fas fa-layer-group me-1"></i>Saved Dashboards
+                </div>
+                <ul id="dbbSavedList" class="list-group list-group-flush">
+                    <li class="list-group-item text-muted small py-2">Loading…</li>
+                </ul>
+            </div>
+        </div>
         <button class="btn btn-outline-secondary btn-sm" id="dbbExportPDF">
             <i class="fas fa-file-pdf me-1"></i>Export PDF
         </button>
@@ -35,9 +58,9 @@
         </button>
 
         <!-- Active filter badge -->
-        <div id="dbbFilterBadge" class="dbb-filter-badge d-none">
-            <i class="fas fa-filter me-1"></i>Filtered: <strong id="dbbFilterVal"></strong>
-            <button class="btn-close btn-close-sm ms-2" id="dbbClearFilter" title="Clear filter"></button>
+        <div id="dbbFilterBadge" class="dbb-filter-badge d-none ms-1">
+            <i class="fas fa-filter me-1"></i>Filter: <strong id="dbbFilterVal"></strong>
+            <button class="btn-close btn-close btn-close-sm ms-2" id="dbbClearFilter" title="Clear filter"></button>
         </div>
     </div>
 
@@ -45,48 +68,64 @@
     <div class="dbb-canvas">
         <div id="dbbEmptyHint" class="dbb-empty-hint">
             <i class="fas fa-chart-area fa-3x mb-3 text-muted"></i>
-            <p class="text-muted">Click <strong>Add Chart</strong> to start building your dashboard</p>
+            <p class="text-muted mb-0">Click <strong>Add Chart</strong> to build your dashboard</p>
+            <p class="text-muted small">Drag to move • Resize corners • Click bars to cross-filter</p>
         </div>
         <div class="grid-stack" id="dbbGrid"></div>
     </div>
 </div>
 
 <!-- ── Add / Edit Chart Modal ───────────────────────────────────── -->
-<div class="modal fade" id="dbbModal" tabindex="-1">
+<div class="modal fade" id="dbbModal" tabindex="-1" aria-labelledby="dbbModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
+
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold" id="dbbModalTitle">Add Chart</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body">
                 <input type="hidden" id="editingWidgetId">
                 <div class="row g-3">
+
                     <!-- Title -->
                     <div class="col-12">
                         <label class="form-label fw-semibold">Chart Title</label>
                         <input type="text" class="form-control" id="dbbTitle" placeholder="e.g. Revenue by Region">
                     </div>
+
                     <!-- Chart Type -->
                     <div class="col-sm-6">
                         <label class="form-label fw-semibold">Chart Type</label>
                         <select class="form-select" id="dbbType">
-                            <option value="bar">Bar Chart</option>
-                            <option value="bar-h">Horizontal Bar</option>
-                            <option value="line">Line Chart</option>
-                            <option value="area">Area Chart</option>
-                            <option value="pie">Pie Chart</option>
-                            <option value="doughnut">Doughnut Chart</option>
-                            <option value="radar">Radar Chart</option>
-                            <option value="polarArea">Polar Area</option>
-                            <option value="scatter">Scatter Plot</option>
-                            <option value="bubble">Bubble Chart</option>
-                            <option value="histogram">Histogram</option>
-                            <option value="kpi">KPI Card</option>
+                            <optgroup label="Bar / Column">
+                                <option value="bar">Bar Chart (Vertical)</option>
+                                <option value="bar-h">Bar Chart (Horizontal)</option>
+                                <option value="histogram">Histogram</option>
+                            </optgroup>
+                            <optgroup label="Line / Area">
+                                <option value="line">Line Chart</option>
+                                <option value="area">Area Chart</option>
+                            </optgroup>
+                            <optgroup label="Circular">
+                                <option value="pie">Pie Chart</option>
+                                <option value="doughnut">Doughnut Chart</option>
+                                <option value="polarArea">Polar Area</option>
+                                <option value="radar">Radar Chart</option>
+                            </optgroup>
+                            <optgroup label="Scatter / Bubble">
+                                <option value="scatter">Scatter Plot</option>
+                                <option value="bubble">Bubble Chart</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                                <option value="kpi">KPI Card</option>
+                            </optgroup>
                         </select>
                     </div>
-                    <!-- Aggregation -->
-                    <div class="col-sm-6">
+
+                    <!-- Aggregation (hidden for scatter/bubble/histogram/kpi) -->
+                    <div class="col-sm-6" id="aggGroup">
                         <label class="form-label fw-semibold">Aggregation</label>
                         <select class="form-select" id="dbbAgg">
                             <option value="sum">Sum</option>
@@ -96,23 +135,26 @@
                             <option value="min">Min</option>
                         </select>
                     </div>
-                    <!-- X Axis -->
+
+                    <!-- X Axis (hidden for KPI) -->
                     <div class="col-sm-6" id="xAxisGroup">
-                        <label class="form-label fw-semibold">X-Axis / Category</label>
+                        <label class="form-label fw-semibold">X-Axis / Category Column</label>
                         <select class="form-select" id="dbbX">
                             <option value="">-- Select column --</option>
                             {% for c in columns %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
                         </select>
                     </div>
-                    <!-- Y Axis -->
+
+                    <!-- Y Axis (hidden for histogram) -->
                     <div class="col-sm-6" id="yAxisGroup">
-                        <label class="form-label fw-semibold">Y-Axis / Value</label>
+                        <label class="form-label fw-semibold">Y-Axis / Value Column</label>
                         <select class="form-select" id="dbbY">
-                            <option value="">-- Select column --</option>
+                            <option value="">-- auto / none --</option>
                             {% for c in numeric_cols %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
                         </select>
                     </div>
-                    <!-- Bubble size (shown only for bubble) -->
+
+                    <!-- Bubble size -->
                     <div class="col-sm-6 d-none" id="sizeGroup">
                         <label class="form-label fw-semibold">Bubble Size Column</label>
                         <select class="form-select" id="dbbSize">
@@ -120,6 +162,7 @@
                             {% for c in numeric_cols %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
                         </select>
                     </div>
+
                     <!-- Color scheme -->
                     <div class="col-sm-6">
                         <label class="form-label fw-semibold">Color Scheme</label>
@@ -132,20 +175,24 @@
                             <option value="monochrome">Monochrome</option>
                         </select>
                     </div>
+
                     <!-- Top N -->
                     <div class="col-sm-6">
-                        <label class="form-label fw-semibold">Top N Items (0 = all)</label>
-                        <input type="number" class="form-control" id="dbbTopN" value="0" min="0" max="100">
+                        <label class="form-label fw-semibold">Top N Items <span class="text-muted fw-normal">(0 = all)</span></label>
+                        <input type="number" class="form-control" id="dbbTopN" value="0" min="0" max="500">
                     </div>
-                    <!-- Preview hint -->
+
+                    <!-- Preview area -->
                     <div class="col-12">
-                        <div id="dbbPreviewArea" class="dbb-preview-area">
-                            <canvas id="dbbPreviewCanvas" height="160"></canvas>
+                        <div id="dbbPreviewArea" class="dbb-preview-area d-flex align-items-center justify-content-center text-muted small">
+                            <canvas id="dbbPreviewCanvas" style="max-height:200px"></canvas>
                         </div>
                     </div>
+
                 </div>
             </div>
-            <div class="modal-footer border-0">
+
+            <div class="modal-footer border-0 pt-0">
                 <button class="btn btn-outline-secondary" id="dbbPreviewBtn">
                     <i class="fas fa-eye me-1"></i>Preview
                 </button>
@@ -153,86 +200,133 @@
                     <i class="fas fa-plus me-1"></i>Add to Dashboard
                 </button>
             </div>
+
         </div>
     </div>
 </div>
 
-<!-- Gridstack + Chart.js -->
+<!-- Gridstack JS – MUST load before dashboard_builder.js -->
 <script src="https://cdn.jsdelivr.net/npm/gridstack@8.4.0/dist/gridstack.all.js"></script>
 
+<!-- PDF export libs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-/* ── Dashboard Builder layout ───────────────────────── */
-.dbb-page { display:flex; flex-direction:column; height:calc(100vh - 120px); gap:0; }
+/* ── Dashboard page layout ──────────────────────────── */
+.dbb-page {
+    display: flex; flex-direction: column;
+    height: calc(100vh - 112px); gap: 0;
+}
 .dbb-toolbar {
-    background:#fff;
-    border:1px solid #dee2e6;
-    border-radius:10px;
-    padding:.6rem 1rem;
-    margin-bottom:.75rem;
-    flex-shrink:0;
-    box-shadow:0 1px 4px rgba(0,0,0,.06);
+    background: #fff;
+    border: 1px solid #dee2e6; border-radius: 10px;
+    padding: .55rem 1rem; margin-bottom: .65rem; flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 .dbb-canvas {
-    flex:1; overflow:auto;
-    background:#f4f6fb;
-    border-radius:10px;
-    border:1px solid #dee2e6;
-    padding:.75rem;
-    position:relative;
+    flex: 1; overflow: auto;
+    background: #f4f6fb;
+    border-radius: 10px; border: 1px solid #dee2e6;
+    padding: .75rem; position: relative;
 }
 .dbb-empty-hint {
-    position:absolute; top:50%; left:50%;
-    transform:translate(-50%,-50%);
-    text-align:center; pointer-events:none;
-    transition:opacity .3s;
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center; pointer-events: none;
+    transition: opacity .3s;
 }
-.dbb-empty-hint.hidden { opacity:0; }
+.dbb-empty-hint.hidden { opacity: 0; pointer-events: none; }
 
-/* ── Grid items ──────────────────────────────────────── */
+/* ── Grid items ─────────────────────────────────────── */
 .grid-stack-item-content {
-    background:#fff;
-    border-radius:10px;
-    border:1px solid #e2e8f0;
-    overflow:hidden;
-    display:flex; flex-direction:column;
-    box-shadow:0 2px 8px rgba(0,0,0,.06);
+    background: #fff;
+    border-radius: 10px; border: 1px solid #e2e8f0;
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
 }
 .dbb-widget-header {
-    display:flex; align-items:center; gap:.4rem;
-    padding:.45rem .7rem;
-    background:#fafbfc;
-    border-bottom:1px solid #e9ecef;
-    flex-shrink:0;
-    min-height:36px;
+    display: flex; align-items: center; gap: .4rem;
+    padding: .4rem .7rem;
+    background: #fafbfc; border-bottom: 1px solid #e9ecef;
+    flex-shrink: 0; min-height: 34px;
 }
-.dbb-drag-handle { cursor:grab; color:#adb5bd; font-size:1rem; }
-.dbb-drag-handle:active { cursor:grabbing; }
-.dbb-widget-title { flex:1; font-weight:600; font-size:.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.dbb-widget-actions { display:flex; gap:.3rem; }
+.dbb-drag-handle { cursor: grab; color: #adb5bd; font-size: .9rem; }
+.dbb-drag-handle:active { cursor: grabbing; }
+.dbb-widget-title {
+    flex: 1; font-weight: 600; font-size: .82rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dbb-widget-actions { display: flex; gap: .25rem; }
 .dbb-widget-actions button {
-    background:none; border:none; color:#6c757d;
-    padding:.15rem .35rem; border-radius:4px; font-size:.8rem; cursor:pointer;
-    transition:background .15s, color .15s;
+    background: none; border: none; color: #6c757d;
+    padding: .15rem .3rem; border-radius: 4px; font-size: .78rem; cursor: pointer;
+    transition: background .15s, color .15s;
 }
-.dbb-widget-actions button:hover { background:#f0f4ff; color:#0d6efd; }
-.dbb-widget-body { flex:1; padding:.5rem; position:relative; min-height:0; }
-.dbb-widget-body canvas { max-height:100%; }
-/* KPI card */
-.dbb-kpi-card { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:.4rem; }
-.dbb-kpi-value { font-size:2.4rem; font-weight:700; color:#0d6efd; line-height:1; }
-.dbb-kpi-label { font-size:.9rem; color:#6c757d; }
-.dbb-kpi-sub { font-size:.8rem; color:#adb5bd; }
+.dbb-widget-actions button:hover { background: #f0f4ff; color: #0d6efd; }
 
-/* Filter badge */
-.dbb-filter-badge {
-    display:inline-flex; align-items:center;
-    background:#fff3cd; border:1px solid #ffc107;
-    border-radius:20px; padding:.2rem .75rem;
-    font-size:.82rem; font-weight:500;
+.dbb-widget-body {
+    flex: 1; padding: .4rem; position: relative;
+    min-height: 0; overflow: hidden;
 }
-/* Preview */
-.dbb-preview-area { background:#f8f9fa; border-radius:8px; padding:.5rem; min-height:180px; }
+.dbb-widget-body canvas { width: 100% !important; height: 100% !important; }
+
+/* Loading / error states */
+.dbb-loading {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #6c757d;
+}
+.dbb-error {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; color: #dc3545; padding: .5rem; text-align: center;
+}
+
+/* ── KPI card ───────────────────────────────────────── */
+.dbb-kpi-card {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; gap: .3rem; padding: .5rem;
+}
+.dbb-kpi-value {
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    font-weight: 700; color: #0d6efd; line-height: 1;
+}
+.dbb-kpi-label { font-size: .8rem; color: #6c757d; text-align: center; }
+.dbb-kpi-stats {
+    display: flex; flex-wrap: wrap; gap: .4rem .8rem;
+    justify-content: center; font-size: .72rem; color: #6c757d;
+    margin-top: .2rem;
+}
+
+/* ── Filter badge ───────────────────────────────────── */
+.dbb-filter-badge {
+    display: inline-flex; align-items: center;
+    background: #fff3cd; border: 1px solid #ffc107;
+    border-radius: 20px; padding: .18rem .7rem;
+    font-size: .8rem; font-weight: 500;
+}
+
+/* ── Preview area ───────────────────────────────────── */
+.dbb-preview-area {
+    background: #f8f9fa; border-radius: 8px;
+    padding: .5rem; min-height: 210px; position: relative;
+}
+
+/* ── Saved dashboards panel ─────────────────────────── */
+.dbb-load-panel {
+    position: absolute; top: 100%; left: 0; z-index: 1050;
+    width: 340px; background: #fff;
+    border: 1px solid #dee2e6; border-radius: 10px;
+    padding: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    max-height: 420px; overflow-y: auto; margin-top: 4px;
+}
+.dbb-load-panel .list-group-item { font-size: .85rem; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 </style>
 
+<!-- dashboard_builder.js MUST come after Gridstack AND Bootstrap (loaded in layout footer) -->
 <script src="{{ url_for('static', filename='js/dashboard_builder.js') }}"></script>
 {% endblock %}
